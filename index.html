@@ -1,0 +1,2578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universal STEM IMRAD Proposal &amp; Adaptive Co-Regulation Engine (CRISP-AI Architecture)</title>
+<style>
+:root {
+  --primary-navy: #0d2137;
+  --secondary-navy: #173456;
+  --academic-gold: #c5a059;
+  --gold-hover: #b5924b;
+  --parchment-bg: #FAF8F5;
+  --card-bg: #FFFFFF;
+  --border-color: #d1c7b7;
+  --text-primary: #222222;
+  --text-secondary: #4a4a4a;
+  --correct-green: #2e7d32;
+  --incorrect-red: #c62828;
+  --warning-amber: #e65100;
+  --accent-blue: #0d47a1;
+  --teal-accent: #00897b;
+  --shadow-soft: 0 4px 20px rgba(0,0,0,0.06);
+  --shadow-hard: 0 8px 30px rgba(13,33,55,0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Times New Roman", Times, "Liberation Serif", serif;
+  background: var(--parchment-bg);
+  color: var(--text-primary);
+  line-height: 1.6;
+  font-size: 16px;
+  padding-bottom: 100px;
+}
+
+/* TOP STATUS & CONTROL BAR */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, var(--primary-navy), var(--secondary-navy));
+  color: #fff;
+  padding: 8px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  border-bottom: 3px solid var(--academic-gold);
+}
+.top-bar-title {
+  font-size: 14.5px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.engine-badge {
+  background: linear-gradient(135deg, var(--teal-accent), #2e7d32);
+  color: #fff;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: bold;
+  border: 1px solid rgba(255,255,255,0.4);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.condition-pill {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: 1px solid var(--academic-gold);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.fading-pill {
+  background: rgba(0,137,123,0.3);
+  color: #a7ffeb;
+  border: 1px solid #00bfa5;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.autosave-pill {
+  font-size: 11px;
+  color: #81c784;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0,0,0,0.25);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.timer-badge {
+  background: #fff;
+  color: var(--primary-navy);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: bold;
+  border: 2px solid var(--academic-gold);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 120px;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+.timer-badge.warning { background: #fff3e0; color: var(--warning-amber); border-color: #ff9800; }
+.timer-badge.danger { background: #ffebee; color: #b71c1c; border-color: #f44336; animation: pulse 1.2s infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+
+/* BUTTONS */
+.btn {
+  font-family: "Times New Roman", Times, serif;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  border: none;
+}
+.btn-gold { background: linear-gradient(180deg, #dfb96c, var(--academic-gold)); color: var(--primary-navy); border: 1px solid #9c7c36; }
+.btn-gold:hover { background: var(--gold-hover); }
+.btn-navy { background: var(--primary-navy); color: #fff; border: 1px solid var(--academic-gold); }
+.btn-navy:hover { background: var(--secondary-navy); }
+.btn-pdf { background: linear-gradient(180deg, #b71c1c, #880e4f); color: #fff; border: 1px solid #5f0937; }
+.btn-pdf:hover { background: #880e4f; }
+.btn-report { background: linear-gradient(180deg, #004d80, #002f4f); color: #fff; border: 1px solid #002239; }
+.btn-report:hover { background: #00385c; }
+.btn-teacher { background: #4a148c; color: #fff; border: 1px solid #7b1fa2; font-size: 12px; padding: 5px 10px; }
+.btn-teacher:hover { background: #6a1b9a; }
+.btn-help-teacher { background: #e65100; color: #fff; border: 1px solid #bf360c; font-size: 12px; padding: 5px 10px; border-radius: 20px; }
+.btn-help-teacher:hover { background: #bf360c; }
+.btn-unlock { background: linear-gradient(180deg, var(--teal-accent), #00695c); color: #fff; border: 1px solid #004d40; font-size: 14px; padding: 8px 18px; }
+.btn-unlock:hover { background: #00695c; }
+.btn-asset { background: #fff; color: #0d47a1; border: 1.5px solid #90caf9; font-size: 12px; padding: 3px 8px; border-radius: 3px; cursor: pointer; }
+.btn-asset:hover { background: #e3f2fd; border-color: #1976d2; }
+.btn-custom-sub { background: #fdfbf7; color: #6a4f10; border: 1.5px dashed var(--academic-gold); font-size: 13px; padding: 4px 10px; border-radius: 3px; cursor: pointer; }
+.btn-custom-sub:hover { background: #f7eedb; }
+
+/* STAGE NAVIGATION STRIP */
+.imrad-nav-strip {
+  background: #fff;
+  border-bottom: 2px solid var(--border-color);
+  padding: 8px 20px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  overflow-x: auto;
+  position: sticky;
+  top: 49px;
+  z-index: 990;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.tab-btn {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 12.5px;
+  font-weight: bold;
+  padding: 6px 12px;
+  border: 1px solid #d1c7b7;
+  background: #fdfbf7;
+  color: #444;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.tab-btn:hover:not(.locked) { background: #f0ece1; color: var(--primary-navy); }
+.tab-btn.active { background: var(--primary-navy) !important; color: #fff !important; border-color: var(--academic-gold) !important; box-shadow: 0 2px 6px rgba(13,33,55,0.25); }
+.tab-btn.completed { border-color: #2e7d32; background: #e8f5e9; color: #1b5e20; }
+.tab-btn.transfer-stage { border-color: #b71c1c; color: #b71c1c; }
+.tab-btn.transfer-stage.active { background: #b71c1c !important; color: #fff !important; border-color: #ff8a80 !important; }
+.tab-btn.locked { background: #eee; color: #999; border-color: #ccc; cursor: not-allowed; opacity: 0.65; }
+.tab-btn .tab-time { font-size: 10.5px; opacity: 0.85; background: rgba(0,0,0,0.08); padding: 1px 5px; border-radius: 10px; }
+.tab-btn.active .tab-time { background: rgba(255,255,255,0.2); color: #fff; }
+
+/* CONTAINER & LAYOUT */
+.container {
+  max-width: 1400px;
+  margin: 20px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 25px;
+}
+@media (max-width: 1100px) { .container { grid-template-columns: 1fr; } }
+
+.paper {
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-soft);
+  padding: 35px;
+  border-radius: 4px;
+  position: relative;
+}
+.paper::before {
+  content: "";
+  position: absolute;
+  top: 6px; left: 6px; right: 6px; bottom: 6px;
+  border: 1px solid rgba(197,160,89,0.35);
+  pointer-events: none;
+}
+
+/* MANUSCRIPT HEADER */
+.manuscript-header {
+  text-align: center;
+  border-bottom: 2px solid var(--primary-navy);
+  padding-bottom: 20px;
+  margin-bottom: 25px;
+}
+.springer-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--teal-accent), #2e7d32);
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 3px 10px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.manuscript-title-input {
+  font-size: 20px;
+  font-weight: bold;
+  color: #111;
+  line-height: 1.35;
+  text-align: center;
+  width: 100%;
+  border: 1px dashed var(--academic-gold);
+  padding: 6px;
+  background: #fdfaf3;
+  margin-bottom: 10px;
+  font-family: "Times New Roman", Times, serif;
+}
+.manuscript-authors { font-size: 14.5px; font-weight: bold; color: #333; margin-bottom: 4px; }
+.manuscript-affiliations { font-size: 13px; color: #666; font-style: italic; margin-bottom: 8px; }
+
+/* SECTIONS */
+.imrad-section { display: none; }
+.imrad-section.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-title-bar {
+  background: linear-gradient(90deg, var(--primary-navy), var(--secondary-navy));
+  color: #fff;
+  padding: 12px 18px;
+  margin: 25px 0 15px;
+  border-left: 6px solid var(--academic-gold);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 2px;
+}
+.section-title-bar h2 { font-size: 16.5px; letter-spacing: 0.5px; }
+
+.section-toolbar {
+  background: #f0f6ff;
+  border: 1px solid #c5ddff;
+  padding: 9px 14px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.toolbar-label { font-size: 13px; font-weight: bold; color: #0d47a1; display: flex; align-items: center; gap: 5px; }
+.toolbar-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* SUBSECTION BLOCK & IN-SITU AI SPOTTER */
+.subsection-block {
+  background: #fff;
+  border: 1.5px solid #dcd4c7;
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 22px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  position: relative;
+}
+.subsection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed #d1c7b7;
+  padding-bottom: 6px;
+}
+.subsection-title {
+  font-size: 14.5px;
+  font-weight: bold;
+  color: var(--primary-navy);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sub-controls { display: flex; gap: 4px; flex-wrap: wrap; }
+.sub-icon-btn {
+  background: #fdfaf3;
+  border: 1px solid #d1c7b7;
+  color: #555;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.sub-icon-btn:hover { background: var(--primary-navy); color: #fff; border-color: var(--primary-navy); }
+
+/* IN-SITU EMBEDDED AI SPOTTER BOX */
+.inline-ai-spotter {
+  background: #f4f8fd;
+  border: 1.5px solid #bcd7f5;
+  border-radius: 4px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+.spotter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 12.5px;
+}
+.spotter-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 11.5px;
+}
+.status-flow { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+.status-reflection { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
+.status-evaluating { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+.status-hesitation { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+.status-deliberation { background: #ede7f6; color: #4a148c; border: 1px solid #d1c4e9; }
+.status-struggle { background: #ffebee; color: #b71c1c; border: 1px solid #ef9a9a; animation: pulse 1.5s infinite; }
+.status-stagnation { background: #fce4ec; color: #880e4f; border: 1px solid #f48fb1; }
+.status-offloading { background: #ffcdd2; color: #b71c1c; border: 1px solid #e57373; }
+.status-standby { background: #f5f5f5; color: #777; border: 1px solid #ddd; }
+
+.spotter-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.spotter-btn {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 11.5px;
+  font-weight: bold;
+  padding: 4px 9px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.spotter-btn-l1 { background: #e3f2fd; color: #0d47a1; border-color: #90caf9; }
+.spotter-btn-l1:hover { background: #bbdefb; }
+.spotter-btn-l2 { background: #fff3e0; color: #e65100; border-color: #ffb74d; }
+.spotter-btn-l2:hover { background: #ffe0b2; }
+.spotter-btn-l3 { background: #fce4ec; color: #880e4f; border-color: #f48fb1; }
+.spotter-btn-l3:hover { background: #f8bbd0; }
+.spotter-btn-l4 { background: #e8f5e9; color: #1b5e20; border-color: #a5d6a7; }
+.spotter-btn-l4:hover { background: #c8e6c9; }
+.spotter-btn-shape { background: linear-gradient(135deg, #6a1b9a, #4a148c); color: #fff; border: 1px solid #4a148c; }
+.spotter-btn-shape:hover { background: #4a148c; }
+
+.spotter-btn.gated {
+  opacity: 0.40;
+  filter: grayscale(0.85);
+  pointer-events: none;
+  cursor: not-allowed;
+  position: relative;
+}
+
+/* STAGE 1 METADATA INPUTS */
+.meta-label { display: block; font-size: 12.5px; font-weight: bold; color: var(--primary-navy); margin-bottom: 3px; }
+.meta-text {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 14px;
+  border: 1.5px solid #b5a995;
+  border-radius: 4px;
+  background: #fff;
+  color: #111;
+  width: 100%;
+}
+.meta-text:focus { outline: none; border-color: var(--primary-navy); box-shadow: 0 0 0 3px rgba(13,33,55,0.12); }
+.meta-text::placeholder { color: #888; font-style: italic; font-size: 13px; }
+
+/* INLINE SPOTTER RESPONSE CARD */
+.spotter-response-area {
+  margin-top: 8px;
+  background: #fff;
+  border: 1px solid #cbdff2;
+  border-left: 3px solid var(--teal-accent);
+  padding: 8px 12px;
+  border-radius: 3px;
+  font-size: 13px;
+  color: #004d40;
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+
+/* TEXTAREA & METRICS */
+.editor-textarea {
+  width: 100%;
+  min-height: 140px;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 15px;
+  line-height: 1.6;
+  padding: 12px;
+  border: 1.5px solid #b5a995;
+  border-radius: 4px;
+  background: #fff;
+  color: #111;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s;
+}
+.editor-textarea:focus {
+  outline: none;
+  border-color: var(--primary-navy);
+  box-shadow: 0 0 0 3px rgba(13,33,55,0.12);
+}
+.editor-textarea.paste-blocked {
+  border-color: #d32f2f !important;
+  background: #ffebee !important;
+  box-shadow: 0 0 0 4px rgba(211,47,47,0.25) !important;
+  animation: shake 0.4s ease;
+}
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+.editor-textarea::placeholder { color: #888; font-style: italic; font-size: 14px; }
+
+.word-counter-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.telemetry-micro-stats {
+  font-size: 11.5px;
+  color: #555;
+  display: inline-flex;
+  gap: 12px;
+}
+
+/* ASSETS AREA */
+.sub-assets-area { margin: 10px 0; display: flex; flex-direction: column; gap: 10px; }
+.asset-card { background: #fff; border: 1.5px solid #d1c7b7; border-radius: 4px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+.asset-card-header { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; color: var(--primary-navy); margin-bottom: 6px; border-bottom: 1px dashed #d1c7b7; padding-bottom: 4px; }
+
+/* SPRINGER TABLES */
+.springer-table-container { margin: 15px 0; overflow-x: auto; background: #fff; padding: 10px; border: 1px solid #e0d8cb; border-radius: 4px; }
+.springer-table { width: 100%; border-collapse: collapse; font-size: 13px; border-top: 2px solid #000; border-bottom: 2px solid #000; }
+.springer-table th { border-bottom: 1px solid #000; padding: 6px 8px; text-align: left; font-weight: bold; background: #fbf9f5; }
+.springer-table td { padding: 5px 8px; border-bottom: 1px solid #e0e0e0; }
+.springer-table tr:last-child td { border-bottom: none; }
+
+/* GUIDANCE & FORETHOUGHT BOXES */
+.section-guide-box {
+  background: #fdfaf3;
+  border: 1px solid #dcd4c7;
+  border-left: 4px solid var(--academic-gold);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  color: #333;
+}
+.section-guide-box strong.guide-title { color: var(--primary-navy); font-size: 15px; display: block; margin-bottom: 4px; }
+
+.forethought-card {
+  background: #f0f7ff;
+  border: 1.5px solid #b2d4ff;
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.forethought-title { font-size: 15px; font-weight: bold; color: #0d47a1; margin-bottom: 8px; }
+
+.section-confidence-card {
+  background: #f4efe6;
+  border: 1px solid #dcd4c7;
+  padding: 12px 16px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+  font-size: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* SIDEBAR: PH.D. PROTOCOL COMPANION */
+.sidebar-card {
+  background: #fff;
+  border: 1.5px solid var(--border-color);
+  border-radius: 4px;
+  padding: 18px;
+  box-shadow: var(--shadow-soft);
+  margin-bottom: 20px;
+}
+.sidebar-title {
+  font-size: 14.5px;
+  font-weight: bold;
+  color: var(--primary-navy);
+  border-bottom: 2px solid var(--academic-gold);
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.srl-state-badge {
+  font-size: 11px;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.trace-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 10px 0;
+}
+.trace-stat-box {
+  background: #fbf9f5;
+  border: 1px solid #e2dacd;
+  padding: 8px;
+  border-radius: 3px;
+  text-align: center;
+}
+.trace-stat-val { font-size: 16px; font-weight: bold; color: var(--primary-navy); }
+.trace-stat-lbl { font-size: 10px; color: #666; text-transform: uppercase; }
+
+/* TOAST */
+.anti-paste-toast {
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%) translateY(150px);
+  background: linear-gradient(135deg, #b71c1c, #d32f2f);
+  color: #fff;
+  padding: 14px 24px;
+  border-radius: 6px;
+  border: 2px solid #ffcdd2;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+  z-index: 3000;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  max-width: 620px;
+}
+.anti-paste-toast.show { transform: translateX(-50%) translateY(0); }
+
+/* MODALS */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(13,33,55,0.65);
+  backdrop-filter: blur(3px);
+  z-index: 4000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.modal-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+.modal-box {
+  background: #fff;
+  border: 2px solid var(--primary-navy);
+  border-radius: 6px;
+  padding: 25px;
+  max-width: 750px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  max-height: 88vh;
+  overflow-y: auto;
+  position: relative;
+}
+.modal-box-wide { max-width: 950px; }
+.modal-title {
+  font-size: 17px;
+  font-weight: bold;
+  color: var(--primary-navy);
+  border-bottom: 2px solid var(--academic-gold);
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #777;
+}
+.modal-close-btn:hover { color: #b71c1c; }
+
+/* KNOWLEDGE BANK ACCORDIONS */
+.kb-accordion { border: 1.5px solid var(--border-color); border-radius: 4px; margin-bottom: 10px; overflow: hidden; background: #fff; }
+.kb-accordion summary {
+  background: linear-gradient(90deg, #f0ece1, #faf7f0);
+  padding: 10px 14px;
+  font-weight: bold;
+  color: var(--primary-navy);
+  cursor: pointer;
+  font-size: 13.5px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-left: 4px solid var(--academic-gold);
+}
+.kb-accordion summary::-webkit-details-marker { display: none; }
+.kb-accordion summary::after { content: "▸"; margin-left: auto; color: var(--academic-gold); font-size: 15px; transition: transform 0.2s; }
+.kb-accordion[open] summary::after { transform: rotate(90deg); }
+.kb-accordion[open] summary { border-bottom: 1px solid var(--border-color); }
+.kb-accordion .kb-body { padding: 12px 14px; font-size: 13px; }
+
+/* PRINT VIEW FOR SPRINGER NATURE PDF MANUSCRIPT & REPORT */
+@media screen {
+  #printManuscriptContainer, #printReportContainer { display: none !important; }
+}
+
+@media print {
+  body { background: #fff !important; color: #000 !important; font-size: 10pt !important; padding: 0 !important; }
+  .top-bar, .imrad-nav-strip, .sidebar-col, .anti-paste-toast, .sub-controls, .spotter-actions, .spotter-header, .toolbar-actions, .btn, .modal-overlay, .container { display: none !important; }
+  #printManuscriptContainer.print-active, #printReportContainer.print-active { display: block !important; visibility: visible !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+  .springer-print-header { text-align: center; margin-bottom: 18pt; border-bottom: 1.5pt solid #000; padding-bottom: 10pt; }
+  .springer-print-title { font-size: 14pt; font-weight: bold; margin-bottom: 8pt; line-height: 1.25; }
+  .springer-print-authors { font-size: 10pt; font-weight: bold; margin-bottom: 4pt; }
+  .springer-print-affil { font-size: 8.5pt; font-style: italic; color: #444; margin-bottom: 8pt; }
+  .springer-print-h2 { font-size: 11.5pt; font-weight: bold; border-bottom: 0.75pt solid #000; margin-top: 14pt; margin-bottom: 6pt; text-transform: uppercase; }
+  .springer-print-h3 { font-size: 10pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; }
+  .springer-print-p { font-size: 9.5pt; line-height: 1.45; text-align: justify; margin-bottom: 8pt; text-indent: 1.5em; }
+  .springer-print-table { width: 100%; border-collapse: collapse; margin: 10pt 0; font-size: 8.5pt; border-top: 1.5pt solid #000; border-bottom: 1.5pt solid #000; }
+  .springer-print-table th { border-bottom: 0.75pt solid #000; padding: 4pt; text-align: left; font-weight: bold; }
+  .springer-print-table td { padding: 3pt 4pt; border-bottom: 0.5pt solid #ddd; }
+  .springer-print-caption { font-size: 8.5pt; font-weight: bold; margin-bottom: 4pt; }
+  @page { size: letter; margin: 0.75in; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP STICKY BAR -->
+<header class="top-bar">
+  <div class="top-bar-title">
+    <span>🔬 Universal STEM IMRAD Proposal Engine</span>
+    <span class="engine-badge">✨ CRISP-AI Protocol</span>
+    <span class="condition-pill" onclick="openConditionModal()" id="activeConditionBadge" title="2×2 Factorial Condition Selector">🔬 Cond. 4: Adaptive + Enhanced Teacher</span>
+    <span class="fading-pill" id="fadingStatusBadge">📉 Fading: Tier 4 Active</span>
+    <span class="autosave-pill" id="autosaveStatus">💾 Auto-Saved</span>
+  </div>
+  <div class="top-actions">
+    <button class="btn btn-help-teacher" onclick="triggerStudentHelpRequest()" id="btnHelpTeacher" title="Signal teacher for assistance">🙋 Request Teacher Help</button>
+    <button class="btn btn-teacher" id="btnTeacherPanel" onclick="openTeacherDashboard()" title="Open Teacher Orchestration Dashboard">👨‍🏫 Teacher Panel</button>
+    <div class="timer-badge" id="sectionTimerDisplay">⏱️ 40:00</div>
+    <button class="btn btn-gold" onclick="openKnowledgeBank()" title="Open Reference &amp; Guidelines">📚 Reference Bank</button>
+    <button class="btn btn-report" onclick="generateDiagnosticReport()" title="Generate Metacognitive Trace Report">📊 Trace Report</button>
+    <button class="btn btn-pdf" onclick="compileAndPrintPdf()" title="Download Committee-Ready Proposal PDF">📄 PDF Manuscript</button>
+    <button class="btn btn-gold" onclick="exportTraceDataset()" title="Export JSON Trace">💾 JSON</button>
+    <button class="btn btn-gold" onclick="exportTraceCSV()" title="Export CSV Trace">📤 CSV</button>
+  </div>
+</header>
+
+<!-- IMRAD STAGE NAVIGATION STRIP -->
+<nav class="imrad-nav-strip" id="imradNav">
+  <button class="tab-btn active" id="tab-setup" onclick="switchSection('setup')"><span>1. Setup &amp; Baseline</span></button>
+  <button class="tab-btn locked" id="tab-intro" onclick="switchSection('intro')"><span>2. Introduction (RQs)</span><span class="tab-time">40m</span></button>
+  <button class="tab-btn locked" id="tab-methods" onclick="switchSection('methods')"><span>3. Methods &amp; Protocol</span><span class="tab-time">40m</span></button>
+  <button class="tab-btn locked" id="tab-results" onclick="switchSection('results')"><span>4. Results &amp; Synthesis</span><span class="tab-time">40m</span></button>
+  <button class="tab-btn locked" id="tab-discussion" onclick="switchSection('discussion')"><span>5. Discussion &amp; Mechanism</span><span class="tab-time">40m</span></button>
+  <button class="tab-btn locked" id="tab-references" onclick="switchSection('references')"><span>6. References &amp; Calibration</span><span class="tab-time">40m</span></button>
+  <button class="tab-btn locked transfer-stage" id="tab-transfer" onclick="switchSection('transfer')"><span>7. 🎯 Unassisted Transfer (Faded)</span><span class="tab-time">30m</span></button>
+</nav>
+
+<!-- MAIN CONTAINER -->
+<main class="container">
+  <article class="paper" id="paperContainer">
+    <header class="manuscript-header">
+      <span class="springer-badge">Springer Nature / APA 7 IMRAD Format • Universal STEM Research Proposal</span>
+      <input type="text" id="displayProjectTitle" class="manuscript-title-input" value="Investigation of Empirical Variables, Causal Mechanisms, and Technological Optimization in Secondary STEM Inquiry" oninput="saveStateToLocalStorage()" title="Click to edit project title">
+      <div class="manuscript-authors" id="displayAuthors">Student Research Team: [Co-Investigators]</div>
+      <div class="manuscript-affiliations" id="displayAffiliations">
+        Science, Technology, Engineering &amp; Mathematics (STEM) Program, Secondary Education Division<br>
+        Faculty Advisors: [Lead STEM Advisor &amp; Co-Advisor / Specialist]
+      </div>
+    </header>
+
+    <!-- SECTION 1: SETUP & BASELINE METADATA -->
+    <section class="imrad-section active" id="sec-setup">
+      <div class="section-title-bar">
+        <h2>Stage 1: Research Metadata, Team Roles &amp; Baseline Forethought</h2>
+        <span style="font-size:12px;opacity:0.85">Zimmerman SRL: Forethought Phase</span>
+      </div>
+
+      <div class="section-guide-box">
+        <strong class="guide-title">📋 Phase 1: Universal Research Configuration</strong>
+        Define your scientific discipline, project topic, research team member roles, and advisory panel below. Record your baseline calibration before unlocking Stage 2.
+      </div>
+
+      <div style="background:#fdfaf3;border:1.5px solid var(--border-color);padding:18px;border-radius:4px;margin-bottom:20px;">
+        <h3 style="font-size:15px;color:var(--primary-navy);margin-bottom:8px;border-bottom:1px solid #d1c7b7;padding-bottom:5px;">🔬 Project Classification &amp; Scientific Domain</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:15px;">
+          <div>
+            <label class="meta-label">Scientific Discipline / Field:</label>
+            <select id="metaDiscipline" class="meta-text" style="min-height:36px;padding:4px 8px;">
+              <option value="Environmental &amp; Materials Science" selected>Environmental &amp; Materials Science</option>
+              <option value="Biological &amp; Life Sciences">Biological &amp; Life Sciences</option>
+              <option value="Chemistry &amp; Chemical Engineering">Chemistry &amp; Chemical Engineering</option>
+              <option value="Physics &amp; Applied Mechanics">Physics &amp; Applied Mechanics</option>
+              <option value="Computer Science &amp; Data Science">Computer Science &amp; Data Science</option>
+              <option value="Interdisciplinary STEM / Bioengineering">Interdisciplinary STEM / Bioengineering</option>
+            </select>
+          </div>
+          <div>
+            <label class="meta-label">Institutional / School Affiliation:</label>
+            <input type="text" id="metaSchool" class="meta-text" style="min-height:36px;padding:4px 8px;" placeholder="e.g., Secondary STEM Program, Division 2">
+          </div>
+        </div>
+
+        <h3 style="font-size:15px;color:var(--primary-navy);margin:15px 0 8px;border-bottom:1px solid #d1c7b7;padding-bottom:5px;">👥 Research Co-Investigators (Up to 5 Pathway / Task Leads)</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+          <div><label class="meta-label">Investigator 1 — Lead Author / Protocol Lead:</label><input type="text" id="metaStudent1" class="meta-text" style="min-height:36px;padding:4px 8px;" placeholder="Student 1 Name (ID: 01)"></div>
+          <div><label class="meta-label">Investigator 2 — Experimental Materials Lead:</label><input type="text" id="metaStudent2" class="meta-text" style="min-height:36px;padding:4px 8px;" placeholder="Student 2 Name (ID: 02)"></div>
+          <div><label class="meta-label">Investigator 3 — Data Acquisition &amp; Testing Lead:</label><input type="text" id="metaStudent3" class="meta-text" style="min-height:36px;padding:4px 8px;" placeholder="Student 3 Name (ID: 03)"></div>
+          <div><label class="meta-label">Investigator 4 — Statistical &amp; Quantitative Analyst:</label><input type="text" id="metaStudent4" class="meta-text" style="min-height:36px;padding:4px 8px;" placeholder="Student 4 Name (ID: 04)"></div>
+          <div><label class="meta-label">Investigator 5 — Quality Assurance &amp; Safety Manager:</label><input type="text" id="metaStudent5" class="meta-text" style="min-height:36px;padding:4px 8px;" placeholder="Student 5 Name (ID: 05)"></div>
+        </div>
+
+        <h3 style="font-size:15px;color:var(--primary-navy);margin:15px 0 8px;border-bottom:1px solid #d1c7b7;padding-bottom:5px;">🎓 Research Advisory Panel</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;">
+          <div><label class="meta-label">Lead Faculty Advisor:</label><input type="text" id="metaAdvisor1" class="meta-text" style="min-height:36px;padding:4px 8px;" placeholder="e.g., Dr. A. Smith (Lead STEM Advisor)"></div>
+          <div><label class="meta-label">Co-Advisor / Laboratory Instructor:</label><input type="text" id="metaAdvisor2" class="meta-text" style="min-height:36px;padding:4px 8px;" placeholder="e.g., Ms. B. Taylor (Science Instructor)"></div>
+        </div>
+      </div>
+
+      <div class="forethought-card">
+        <h3 class="forethought-title">🎯 Baseline Forethought &amp; Metacognitive Calibration</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:15px;font-size:13.5px;">
+          <div>
+            <label style="font-weight:bold;display:block;margin-bottom:4px;">1. Prior Knowledge of Domain &amp; Methodology:</label>
+            <select id="baselinePriorKnowledge" class="editor-textarea" style="min-height:36px;padding:4px 8px;">
+              <option value="1">1 - Novice (Limited background in experimental design or laboratory protocols)</option>
+              <option value="2">2 - Basic (Familiar with core concepts and standard lab procedures)</option>
+              <option value="3" selected>3 - Intermediate (Understand variables, replication, and statistical tests)</option>
+              <option value="4">4 - Advanced (Experienced with factorial design, ANOVA, and data modeling)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-weight:bold;display:block;margin-bottom:4px;">2. Baseline Self-Efficacy for Scientific Writing (0–100%):</label>
+            <select id="baselineSelfEfficacy" class="editor-textarea" style="min-height:36px;padding:4px 8px;">
+              <option value="40">40% - Low Certainty (Need substantial instructional scaffolding)</option>
+              <option value="60">60% - Moderate Confidence in formulating arguments</option>
+              <option value="80" selected>80% - High Confidence in scientific writing</option>
+              <option value="95">95% - Very High Confidence (Mastery in IMRAD conventions)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:25px;">
+        <button class="btn btn-unlock" onclick="completeAndUnlockSection('setup', 'intro')">🔓 Save Setup &amp; Unlock Stage 2: Introduction (40 Min)</button>
+      </div>
+    </section>
+
+    <!-- SECTION 2: INTRODUCTION -->
+    <section class="imrad-section" id="sec-intro">
+      <div class="section-title-bar">
+        <h2>Stage 2: 1.0 Background, Research Gap &amp; Research Questions</h2>
+        <span style="font-size:12px;opacity:0.85">Session Budget: 40 Minutes</span>
+      </div>
+
+      <div class="section-toolbar">
+        <span class="toolbar-label">⚙️ Section Tools:</span>
+        <div class="toolbar-actions">
+          <button class="btn-custom-sub" onclick="openAddSubModal('intro')">➕ Add Custom Subsection</button>
+        </div>
+      </div>
+
+      <div class="section-guide-box">
+        <strong class="guide-title">📖 Scientific Directives for Introduction</strong>
+        • Establish the real-world problem, societal or environmental significance, and existing empirical gap.<br>
+        • Define core theoretical principles informing the investigation.<br>
+        • Explicitly state Research Questions ($RQ_1$ through $RQ_n$) paired with falsifiable operational hypotheses.
+      </div>
+
+      <div id="subs-container-intro"></div>
+
+      <div class="section-confidence-card">
+        <div>
+          <strong>🎯 Metacognitive Monitoring:</strong> Rate section confidence (0–100%):
+          <select id="conf-intro" style="font-family:'Times New Roman',serif;padding:3px 8px;margin-left:6px;">
+            <option value="50">50% - Low Confidence</option>
+            <option value="75" selected>75% - Moderate Confidence</option>
+            <option value="90">90% - High Confidence</option>
+          </select>
+        </div>
+        <button class="btn btn-unlock" onclick="completeAndUnlockSection('intro', 'methods')">🔓 Complete &amp; Unlock Stage 3: Methods (40 Min)</button>
+      </div>
+    </section>
+
+    <!-- SECTION 3: METHODS -->
+    <section class="imrad-section" id="sec-methods">
+      <div class="section-title-bar">
+        <h2>Stage 3: 2.0 Materials, Experimental Design &amp; Data Governance Protocol</h2>
+        <span style="font-size:12px;opacity:0.85">Session Budget: 40 Minutes</span>
+      </div>
+
+      <div class="section-toolbar">
+        <span class="toolbar-label">⚙️ Section Tools:</span>
+        <div class="toolbar-actions">
+          <button class="btn-custom-sub" onclick="openAddSubModal('methods')">➕ Add Custom Subsection</button>
+        </div>
+      </div>
+
+      <div class="section-guide-box">
+        <strong class="guide-title">🧪 Scientific Directives for Methods</strong>
+        • Detail independent, dependent, and controlled variables, specifying treatment levels and sample size ($n$).<br>
+        • Describe materials pre-processing, synthesis/fabrication steps, and measurement instruments.<br>
+        • Document quality assurance gates, randomization, and safety/ethical constraints.
+      </div>
+
+      <div id="subs-container-methods"></div>
+
+      <div class="section-confidence-card">
+        <div>
+          <strong>🎯 Metacognitive Monitoring:</strong> Rate section confidence (0–100%):
+          <select id="conf-methods" style="font-family:'Times New Roman',serif;padding:3px 8px;margin-left:6px;">
+            <option value="50">50% - Low Confidence</option>
+            <option value="75" selected>75% - Moderate Confidence</option>
+            <option value="90">90% - High Confidence</option>
+          </select>
+        </div>
+        <button class="btn btn-unlock" onclick="completeAndUnlockSection('methods', 'results')">🔓 Complete &amp; Unlock Stage 4: Results (40 Min)</button>
+      </div>
+    </section>
+
+    <!-- SECTION 4: RESULTS -->
+    <section class="imrad-section" id="sec-results">
+      <div class="section-title-bar">
+        <h2>Stage 4: 3.0 Empirical Results &amp; Data Synthesis</h2>
+        <span style="font-size:12px;opacity:0.85">Session Budget: 40 Minutes</span>
+      </div>
+
+      <div class="section-toolbar">
+        <span class="toolbar-label">⚙️ Section Tools:</span>
+        <div class="toolbar-actions">
+          <button class="btn-custom-sub" onclick="openAddSubModal('results')">➕ Add Custom Subsection</button>
+        </div>
+      </div>
+
+      <div class="section-guide-box">
+        <strong class="guide-title">📊 Scientific Directives for Results</strong>
+        • Report objective experimental findings with descriptive statistics (Mean $\pm$ SD) and planned inferential tests.<br>
+        • Embed formal Springer/APA tables and SVG graphs to substantiate each quantitative finding.<br>
+        • Maintain objective reporting: present what the data demonstrate without premature speculation.
+      </div>
+
+      <div id="subs-container-results"></div>
+
+      <div class="section-confidence-card">
+        <div>
+          <strong>🎯 Metacognitive Monitoring:</strong> Rate section confidence (0–100%):
+          <select id="conf-results" style="font-family:'Times New Roman',serif;padding:3px 8px;margin-left:6px;">
+            <option value="50">50% - Low Confidence</option>
+            <option value="75" selected>75% - Moderate Confidence</option>
+            <option value="90">90% - High Confidence</option>
+          </select>
+        </div>
+        <button class="btn btn-unlock" onclick="completeAndUnlockSection('results', 'discussion')">🔓 Complete &amp; Unlock Stage 5: Discussion (40 Min)</button>
+      </div>
+    </section>
+
+    <!-- SECTION 5: DISCUSSION -->
+    <section class="imrad-section" id="sec-discussion">
+      <div class="section-title-bar">
+        <h2>Stage 5: 4.0 Mechanistic Discussion, Implications &amp; Limitations</h2>
+        <span style="font-size:12px;opacity:0.85">Session Budget: 40 Minutes</span>
+      </div>
+
+      <div class="section-toolbar">
+        <span class="toolbar-label">⚙️ Section Tools:</span>
+        <div class="toolbar-actions">
+          <button class="btn-custom-sub" onclick="openAddSubModal('discussion')">➕ Add Custom Subsection</button>
+        </div>
+      </div>
+
+      <div class="section-guide-box">
+        <strong class="guide-title">💡 Scientific Directives for Discussion</strong>
+        • Articulate underlying scientific mechanisms explaining observed outcomes (e.g., molecular interactions, kinetics, energy balances).<br>
+        • Compare findings against published literature benchmarks.<br>
+        • Discuss methodological limitations, boundary conditions, and potential real-world applications.
+      </div>
+
+      <div id="subs-container-discussion"></div>
+
+      <div class="section-confidence-card">
+        <div>
+          <strong>🎯 Metacognitive Monitoring:</strong> Rate section confidence (0–100%):
+          <select id="conf-discussion" style="font-family:'Times New Roman',serif;padding:3px 8px;margin-left:6px;">
+            <option value="50">50% - Low Confidence</option>
+            <option value="75" selected>75% - Moderate Confidence</option>
+            <option value="90">90% - High Confidence</option>
+          </select>
+        </div>
+        <button class="btn btn-unlock" onclick="completeAndUnlockSection('discussion', 'references')">🔓 Complete &amp; Unlock Stage 6: References &amp; Calibration (40 Min)</button>
+      </div>
+    </section>
+
+    <!-- SECTION 6: REFERENCES & CALIBRATION -->
+    <section class="imrad-section" id="sec-references">
+      <div class="section-title-bar">
+        <h2>Stage 6: 5.0 Conclusions, References &amp; Metacognitive Calibration</h2>
+        <span style="font-size:12px;opacity:0.85">Session Budget: 40 Minutes</span>
+      </div>
+
+      <div class="section-toolbar">
+        <span class="toolbar-label">⚙️ Section Tools:</span>
+        <div class="toolbar-actions">
+          <button class="btn-custom-sub" onclick="openAddSubModal('references')">➕ Add Custom Subsection</button>
+        </div>
+      </div>
+
+      <div class="section-guide-box">
+        <strong class="guide-title">📚 APA 7th Edition Reference Directives</strong>
+        Provide formal academic citations supporting your proposal. Every cited source must include complete authorship, year, title, journal/publisher, and active DOI or stable URL.
+      </div>
+
+      <div id="subs-container-references"></div>
+
+      <div class="forethought-card" style="background:#f9fbe7;border-color:#dce775;">
+        <h3 class="forethought-title" style="color:#558b2f;">🎯 Metacognitive Self-Reflection Phase (Zimmerman Phase 3)</h3>
+        <p style="font-size:13.5px;margin-bottom:12px;color:#33691e;">
+          Evaluate your perceived scientific rigor and cognitive effort before proceeding to the final unassisted transfer challenge.
+        </p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;font-size:13.5px;">
+          <div>
+            <label style="font-weight:bold;display:block;margin-bottom:4px;">1. Perceived Scientific Rigor (0–100%):</label>
+            <input type="number" id="postPerceivedScore" class="editor-textarea" style="min-height:36px;padding:4px 8px;" value="85" min="0" max="100">
+          </div>
+          <div>
+            <label style="font-weight:bold;display:block;margin-bottom:4px;">2. Metacognitive Effort Exerted:</label>
+            <select id="postEffortRating" class="editor-textarea" style="min-height:36px;padding:4px 8px;">
+              <option value="High">High (Deep engagement with Socratic prompts and data synthesis)</option>
+              <option value="Moderate" selected>Moderate (Balanced use of guidance and independent formulation)</option>
+              <option value="Low">Low (Felt tasks required minimal cognitive effort)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:25px;display:flex;justify-content:center;gap:15px;flex-wrap:wrap;">
+        <button class="btn btn-unlock" style="font-size:15px;padding:10px 24px;background:#b71c1c;border-color:#880e4f;" onclick="completeAndUnlockSection('references', 'transfer')">
+          🎯 Unlock Stage 7: Delayed Unassisted Transfer Task (Scaffold Withdrawn)
+        </button>
+      </div>
+    </section>
+
+    <!-- SECTION 7: DELAYED UNASSISTED TRANSFER TASK (AUTONOMY BENCHMARK) -->
+    <section class="imrad-section" id="sec-transfer">
+      <div class="section-title-bar" style="background: linear-gradient(90deg, #b71c1c, #880e4f); border-left-color: #ff8a80;">
+        <h2>Stage 7: 6.0 Delayed Unassisted Transfer Task (AI Scaffolding Withdrawn)</h2>
+        <span style="font-size:12px;opacity:0.85">Autonomy Gap Benchmark (30 Minutes)</span>
+      </div>
+
+      <div class="section-guide-box" style="border-left-color: #b71c1c; background: #fff5f5;">
+        <strong class="guide-title" style="color:#b71c1c;">⚠️ The Autonomy Gap Assessment: Independent Transfer</strong>
+        All AI scaffolding spotters, sentence starters, and structured prompts are <strong>completely withdrawn (100% faded)</strong>.
+        <br><br>
+        <strong>Transfer Challenge Directives:</strong>
+        <em>"Apply the scientific principles established in Stages 1–5 to a novel transfer scenario. Formulate an unassisted Claim–Evidence–Reasoning (CER) synthesis addressing a modified constraint, unexpected anomaly, or alternative variable in your domain. Justify your argument independently."</em>
+      </div>
+
+      <div id="subs-container-transfer"></div>
+
+      <div style="text-align:center;margin-top:25px;display:flex;justify-content:center;gap:15px;flex-wrap:wrap;">
+        <button class="btn btn-pdf" style="font-size:16px;padding:12px 28px;" onclick="compileAndPrintPdf()">🎓 Download Full Proposal Manuscript (PDF)</button>
+        <button class="btn btn-report" style="font-size:16px;padding:12px 28px;" onclick="generateDiagnosticReport()">📊 Generate SRL Performance &amp; Trace Report</button>
+      </div>
+    </section>
+  </article>
+
+  <!-- SIDEBAR: PH.D. PROTOCOL COMPANION -->
+  <aside class="sidebar-col">
+    <div class="sidebar-card">
+      <div class="sidebar-title">
+        <span>🧠 SRL Cognitive Spotter</span>
+        <span class="srl-state-badge status-flow" id="sidebarSrlBadge">🟢 Flow State</span>
+      </div>
+      <p style="font-size:12px;color:#555;margin-bottom:8px;">
+        Triangulated multi-feature telemetry monitoring typing bursts, revision ratios, and pause latencies (Winne &amp; Hadwin COPES architecture).
+      </p>
+
+      <div class="trace-stat-grid">
+        <div class="trace-stat-box">
+          <div class="trace-stat-val" id="telemetryClicks">0</div>
+          <div class="trace-stat-lbl">Interactions</div>
+        </div>
+        <div class="trace-stat-box">
+          <div class="trace-stat-val" id="telemetryPauses">0</div>
+          <div class="trace-stat-lbl">Pauses (&gt;5s)</div>
+        </div>
+        <div class="trace-stat-box">
+          <div class="trace-stat-val" id="telemetryWpm">0</div>
+          <div class="trace-stat-lbl">WPM Burst</div>
+        </div>
+        <div class="trace-stat-box">
+          <div class="trace-stat-val" id="telemetryRevisions">0</div>
+          <div class="trace-stat-lbl">Revisions</div>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;font-size:12px;background:#f5f5f5;padding:8px;border-radius:3px;border:1px solid #e0e0e0;">
+        <strong>Cognitive State:</strong> <span id="telemetryStateDesc">Active formulation</span><br>
+        <strong>Pause Duration:</strong> <span id="telemetryCurrentPause">0s</span> | <strong>Max:</strong> <span id="telemetryMaxPause">0s</span><br>
+        <strong>Competency Index:</strong> <span id="telemetryCompetencyScore">0/100</span>
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <div class="sidebar-title">
+        <span>🛡️ Anti-Offloading Guardrail</span>
+        <span style="font-size:11px;background:#ffebee;color:#b71c1c;padding:2px 6px;border-radius:3px;font-weight:bold;">Zero-Paste Active</span>
+      </div>
+      <div style="font-size:13px;margin-bottom:6px;">
+        <strong>Intercepted Pastes:</strong> <span id="blockedPasteDisplay" style="color:#b71c1c;font-weight:bold;">0</span>
+      </div>
+      <p style="font-size:12px;color:#666;">
+        External copying is blocked to preserve productive struggle and prevent cognitive substitution (Sweller / Bjork).
+      </p>
+    </div>
+
+    <div class="sidebar-card">
+      <div class="sidebar-title">
+        <span>📝 Word Count Summary</span>
+        <span style="font-size:12px;font-weight:bold;" id="totalWordCountDisplay">0 words</span>
+      </div>
+      <div style="font-size:12px;display:flex;flex-direction:column;gap:5px;" id="sectionWordCountsList">
+        <div>1.0 Introduction: <span id="wc-intro" style="font-weight:bold;">0</span> / 250w</div>
+        <div>2.0 Methods: <span id="wc-methods" style="font-weight:bold;">0</span> / 350w</div>
+        <div>3.0 Results: <span id="wc-results" style="font-weight:bold;">0</span> / 200w</div>
+        <div>4.0 Discussion: <span id="wc-discussion" style="font-weight:bold;">0</span> / 300w</div>
+        <div>5.0 Conclusions: <span id="wc-references" style="font-weight:bold;">0</span> / 150w</div>
+        <div>6.0 Transfer Task: <span id="wc-transfer" style="font-weight:bold;">0</span> / 150w</div>
+      </div>
+    </div>
+
+    <div class="sidebar-card" style="background:#fbfbfb;">
+      <div class="sidebar-title"><span>📉 Adaptive Fading Schedule</span></div>
+      <div style="font-size:12px;color:#444;line-height:1.45;">
+        • <strong>Score &lt; 50:</strong> Full Tiers 1–4 Available<br>
+        • <strong>Score 50–79:</strong> Tier 4 Faded (Encouraging Self-Regulation)<br>
+        • <strong>Score &ge; 80:</strong> Tier 3 &amp; 4 Faded (Socratic Guidance Only)<br>
+        • <strong>Stage 7:</strong> 100% Withdrawn (Autonomous Transfer)
+      </div>
+    </div>
+  </aside>
+</main>
+
+<!-- ANTI-PASTE TOAST -->
+<div class="anti-paste-toast" id="antiPasteToast">
+  <span style="font-size:22px;">🛑</span>
+  <div>
+    <strong>Zero-Paste Anti-Offloading Guardrail Triggered!</strong><br>
+    External copy-pasting is strictly intercepted. To construct durable cognitive schema and genuine conceptual mastery, articulate arguments in your own words using Socratic prompts and reference data.
+  </div>
+</div>
+
+<!-- SHAPER MODAL -->
+<div class="modal-overlay" id="shaperModal">
+  <div class="modal-box modal-box-wide">
+    <div class="modal-title">
+      <span>✨ Adaptive Writing Shaper (Constrained Feedback)</span>
+      <button class="modal-close-btn" onclick="closeShaperModal()">✕</button>
+    </div>
+    <div style="font-size:13.5px;color:#444;margin-bottom:15px;" id="shaperContextInfo">
+      Analyzing draft subsection...
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px;">
+      <div>
+        <label style="font-weight:bold;font-size:13px;display:block;margin-bottom:4px;">Your Written Draft:</label>
+        <textarea id="shaperCurrentText" class="editor-textarea" style="min-height:180px;background:#fdfdfd;" readonly></textarea>
+      </div>
+      <div>
+        <label style="font-weight:bold;font-size:13px;display:block;margin-bottom:4px;">Instructionally Constrained Feedback:</label>
+        <div id="shaperAiFeedback" style="background:#f0f7ff;border:1.5px solid #b2d4ff;padding:12px;border-radius:4px;min-height:180px;font-size:13.5px;color:var(--primary-navy);overflow-y:auto;">
+          Select a pedagogical refinement dimension below...
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #d1c7b7;padding-top:15px;flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-navy" onclick="runShaperStep(1)">1. CER Structural Check</button>
+        <button class="btn btn-gold" onclick="runShaperStep(2)">2. Variable &amp; Data Integration</button>
+        <button class="btn btn-report" onclick="runShaperStep(3)">3. Academic Register Polish</button>
+      </div>
+      <button class="btn btn-navy" onclick="closeShaperModal()">Return to Writing</button>
+    </div>
+  </div>
+</div>
+
+<!-- TEACHER DASHBOARD MODAL -->
+<div class="modal-overlay" id="teacherDashboardModal">
+  <div class="modal-box modal-box-wide">
+    <div class="modal-title">
+      <span>👨‍🏫 Teacher Orchestration &amp; Two-Tiered Triage Dashboard</span>
+      <button class="modal-close-btn" onclick="closeTeacherDashboard()">✕</button>
+    </div>
+    <div style="font-size:13px;color:#555;margin-bottom:15px;">
+      Classroom: <strong id="tdClassroomLabel">Universal Secondary STEM Inquiry</strong> | Active Condition: <strong id="tdConditionLabel">C4 — Adaptive AI + Enhanced Teacher</strong><br>
+      <span style="font-size:12px;color:#0d47a1;">Buffered Triage Protocol: Transient pauses (&lt;60s) are managed by Socratic prompts; persistent impasses (&ge;90s) surface here for targeted intervention.</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:15px;">
+      <div class="trace-stat-box"><div class="trace-stat-val" id="tdStudentStatus">🟢 In Flow</div><div class="trace-stat-lbl">Inferred State</div></div>
+      <div class="trace-stat-box"><div class="trace-stat-val" id="tdStruggleScore">Low (10%)</div><div class="trace-stat-lbl">Struggle Index</div></div>
+      <div class="trace-stat-box"><div class="trace-stat-val" id="tdTotalPauses">0</div><div class="trace-stat-lbl">Total Pauses</div></div>
+      <div class="trace-stat-box"><div class="trace-stat-val" id="tdAlertCount">0</div><div class="trace-stat-lbl">Buffered Alerts</div></div>
+    </div>
+
+    <h4 style="font-size:14px;color:var(--primary-navy);margin-bottom:8px;">Targeted Pedagogical Interventions (Logged to Research Trace):</h4>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px;">
+      <button class="btn btn-navy" onclick="logTeacherAction('T_VERBAL_NUDGE')">🗣️ Socratic Verbal Prompt</button>
+      <button class="btn btn-gold" onclick="logTeacherAction('T_DATA_EXPLAIN')">📊 Clarify Variable / Protocol</button>
+      <button class="btn btn-report" onclick="logTeacherAction('T_REDIRECT')">🔄 Metacognitive Redirect</button>
+      <button class="btn btn-pdf" onclick="logTeacherAction('T_EXTEND_TIME')">⏱️ Extend Stage (+10 min)</button>
+      <button class="btn" style="background:#2e7d32;color:#fff;" onclick="logTeacherAction('T_PRAISE')">⭐ Validate Autonomy &amp; Schema</button>
+    </div>
+
+    <h4 style="font-size:14px;color:var(--primary-navy);margin-bottom:6px;">Teacher Orchestration &amp; Alert Stream:</h4>
+    <div id="teacherActionLogHistory" style="background:#f9f9f9;border:1px solid #e0e0e0;padding:10px;border-radius:4px;max-height:140px;overflow-y:auto;font-size:12.5px;color:#333;">
+      <em>No teacher interventions logged yet.</em>
+    </div>
+  </div>
+</div>
+
+<!-- CONDITION SELECTOR MODAL -->
+<div class="modal-overlay" id="conditionModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span>🔬 2×2 Factorial Condition Selector (C1–C4)</span>
+      <button class="modal-close-btn" onclick="closeConditionModal()">✕</button>
+    </div>
+    <p style="font-size:13.5px;color:#444;margin-bottom:15px;">
+      Select the experimental condition for this classroom session. Factor 1 = AI Scaffolding (Restricted vs. Adaptive Fading); Factor 2 = Teacher Orchestration (Standard vs. Enhanced Two-Tiered Triage).
+    </p>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;font-size:13.5px;">
+      <label style="background:#fdfaf3;border:1.5px solid #d1c7b7;padding:10px;border-radius:4px;cursor:pointer;">
+        <input type="radio" name="expCond" value="C1" onchange="setExperimentCondition('C1')">
+        <strong>Condition 1: Restricted AI + Standard Teacher</strong><br>
+        <span style="font-size:12px;color:#666;">Level 1 Socratic hints only; Teacher Dashboard and automated stagnation alerts disabled.</span>
+      </label>
+      <label style="background:#fdfaf3;border:1.5px solid #d1c7b7;padding:10px;border-radius:4px;cursor:pointer;">
+        <input type="radio" name="expCond" value="C2" onchange="setExperimentCondition('C2')">
+        <strong>Condition 2: Restricted AI + Enhanced Teacher</strong><br>
+        <span style="font-size:12px;color:#666;">Level 1 Socratic hints only, but Enhanced Teacher Dashboard and buffered alerts active.</span>
+      </label>
+      <label style="background:#fdfaf3;border:1.5px solid #d1c7b7;padding:10px;border-radius:4px;cursor:pointer;">
+        <input type="radio" name="expCond" value="C3" onchange="setExperimentCondition('C3')">
+        <strong>Condition 3: Adaptive Fading AI + Standard Teacher</strong><br>
+        <span style="font-size:12px;color:#666;">Full adaptive scaffolding gradient with competency fading; Teacher Dashboard suppressed.</span>
+      </label>
+      <label style="background:#eef7ff;border:1.5px solid #1976d2;padding:10px;border-radius:4px;cursor:pointer;">
+        <input type="radio" name="expCond" value="C4" checked onchange="setExperimentCondition('C4')">
+        <strong>Condition 4: Adaptive Fading AI + Enhanced Teacher (Full CRISP-AI Protocol)</strong><br>
+        <span style="font-size:12px;color:#0d47a1;">Complete 4-tier adaptive fading gradient + two-tiered buffered teacher triage + unassisted transfer benchmark.</span>
+      </label>
+    </div>
+
+    <div style="text-align:right;">
+      <button class="btn btn-navy" onclick="closeConditionModal()">Confirm Condition</button>
+    </div>
+  </div>
+</div>
+
+<!-- KNOWLEDGE REFERENCE BANK MODAL -->
+<div class="modal-overlay" id="knowledgeBankModal">
+  <div class="modal-box modal-box-wide">
+    <div class="modal-title">
+      <span>📚 Scientific Reference &amp; Guidelines Bank</span>
+      <button class="modal-close-btn" onclick="closeKnowledgeBank()">✕</button>
+    </div>
+    <p style="font-size:12.5px;color:#555;margin-bottom:12px;">
+      Universal methodological guidelines and research quality standards.
+    </p>
+
+    <details class="kb-accordion" open>
+      <summary>📋 1. Claim–Evidence–Reasoning (CER) Framework for Scientific Inquiry</summary>
+      <div class="kb-body">
+        <p><strong>Claim:</strong> A direct, precise statement answering the empirical question or hypothesis.</p>
+        <p><strong>Evidence:</strong> Measurable, quantitative or qualitative data (means, variances, replication $n$, effect sizes) substantiating the claim.</p>
+        <p><strong>Reasoning:</strong> Explicit scientific mechanism explaining <em>why</em> the evidence supports the claim using domain laws, chemical reactions, physical principles, or biological models.</p>
+      </div>
+    </details>
+
+    <details class="kb-accordion">
+      <summary>🧪 2. Experimental Design &amp; Statistical Planning Standards</summary>
+      <div class="kb-body">
+        <p><strong>Variable Isolation:</strong> Clearly distinguish manipulated independent variables from measured dependent variables.</p>
+        <p><strong>Replication &amp; Power:</strong> Plan sufficient independent experimental units ($n \ge 3$ per cell for bench trials; $n \ge 30$ for observational/evaluative pilots).</p>
+        <p><strong>Inferential Mapping:</strong> Pre-specify parametric tests (ANOVA, $t$-tests) with assumption fallbacks (Welch, Mann–Whitney, Kruskal–Wallis).</p>
+      </div>
+    </details>
+
+    <details class="kb-accordion">
+      <summary>⚠️ 3. Research Ethics, Quality Assurance &amp; Data Governance</summary>
+      <div class="kb-body">
+        <p><strong>Versioned Data Pipeline:</strong> Maintain strict separation between RAW unmanipulated observations, CLEAN pre-processed files, and ANALYSIS scripts.</p>
+        <p><strong>Safety Protocol:</strong> Document physical hazard mitigations, chemical disposal, or human-subject consent/assent procedures.</p>
+      </div>
+    </details>
+
+    <div style="text-align:right;margin-top:10px;">
+      <button class="btn btn-navy" onclick="closeKnowledgeBank()">Return to Writing</button>
+    </div>
+  </div>
+</div>
+
+<!-- ASSET INSERTION MODALS -->
+<div class="modal-overlay" id="tableModal">
+  <div class="modal-box">
+    <div class="modal-title"><span>📊 Insert Scientific Data Table</span><button class="modal-close-btn" onclick="closeTableModal()">✕</button></div>
+    <div style="margin-bottom:10px;"><label class="meta-label">Caption:</label><input type="text" id="tblCaption" class="editor-textarea" style="min-height:36px;padding:4px 8px;" placeholder="Table 1: Experimental Observations (Mean ± SD)"></div>
+    <div style="margin-bottom:10px;"><label class="meta-label">Headers (Comma-separated):</label><input type="text" id="tblHeaders" class="editor-textarea" style="min-height:36px;padding:4px 8px;" value="Treatment Code, Factor Level, Replicate n, Metric A (Unit), Metric B (Unit)"></div>
+    <div style="margin-bottom:12px;"><label class="meta-label">Rows (One row per line, comma-separated values):</label><textarea id="tblRows" class="editor-textarea" style="min-height:80px;" placeholder="T1 Control, 0%, 5, 12.4 ± 1.1, 85.2 ± 3.4&#10;T2 Low, 25%, 5, 16.8 ± 1.4, 91.0 ± 2.8&#10;T3 High, 50%, 5, 21.5 ± 1.8, 94.6 ± 2.1"></textarea></div>
+    <div style="text-align:right;display:flex;justify-content:flex-end;gap:8px;"><button class="btn btn-navy" onclick="confirmInsertTable()">Insert Table</button><button class="btn btn-gold" onclick="closeTableModal()">Cancel</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="chartModal">
+  <div class="modal-box">
+    <div class="modal-title"><span>📈 Insert Scientific Bar Graph</span><button class="modal-close-btn" onclick="closeChartModal()">✕</button></div>
+    <div style="margin-bottom:10px;"><label class="meta-label">Figure Caption:</label><input type="text" id="chartCaption" class="editor-textarea" style="min-height:36px;padding:4px 8px;" value="Fig. 1 Mean Empirical Response Across Treatment Conditions"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div><label class="meta-label">X-Axis Labels (Comma-separated):</label><input type="text" id="chartXLabels" class="editor-textarea" style="min-height:36px;padding:4px 8px;" value="Control, Treatment 1, Treatment 2"></div>
+      <div><label class="meta-label">Y-Axis Values (Comma-separated numbers):</label><input type="text" id="chartYValues" class="editor-textarea" style="min-height:36px;padding:4px 8px;" value="12.4, 16.8, 21.5"></div>
+    </div>
+    <div style="text-align:right;display:flex;justify-content:flex-end;gap:8px;"><button class="btn btn-navy" onclick="confirmInsertChart()">Insert Chart</button><button class="btn btn-gold" onclick="closeChartModal()">Cancel</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addSubModal">
+  <div class="modal-box">
+    <div class="modal-title"><span>➕ Add Custom Subsection</span><button class="modal-close-btn" onclick="closeAddSubModal()">✕</button></div>
+    <div style="margin-bottom:12px;"><label class="meta-label">Title:</label><input type="text" id="newSubTitle" class="editor-textarea" style="min-height:36px;padding:4px 8px;" placeholder="e.g., 2.3 Physicochemical Characterization &amp; Assay Protocol"></div>
+    <div style="margin-bottom:12px;"><label class="meta-label">Word Target:</label><input type="text" id="newSubTarget" class="editor-textarea" style="min-height:36px;padding:4px 8px;" placeholder="e.g., 100–150 words"></div>
+    <div style="margin-bottom:15px;"><label class="meta-label">Prompt / Guidance:</label><input type="text" id="newSubPrompt" class="editor-textarea" style="min-height:36px;padding:4px 8px;" placeholder="Guidance for this subsection..."></div>
+    <div style="text-align:right;display:flex;justify-content:flex-end;gap:8px;"><button class="btn btn-navy" onclick="confirmAddSub()">Add</button><button class="btn btn-gold" onclick="closeAddSubModal()">Cancel</button></div>
+  </div>
+</div>
+
+<div id="printManuscriptContainer"></div>
+<div id="printReportContainer"></div>
+
+<script>
+/* ==========================================================================
+   1. UNIVERSAL IMRAD SUBSECTIONS REPOSITORY
+   ========================================================================== */
+let sectionSubs = {
+  intro: [
+    {
+      id: 1,
+      title: "1.1 Problem Statement, Scientific Rationale & Research Gap",
+      placeholder: "Articulate the overarching scientific problem, societal or environmental significance, and the specific empirical gap this research addresses...",
+      target: "100–180 words",
+      assets: []
+    },
+    {
+      id: 2,
+      title: "1.2 Objectives & Research Questions (RQ1–RQn) with Operational Hypotheses",
+      placeholder: "Formulate your specific research questions (RQ1–RQn) defining independent and dependent variables, alongside directional operational hypotheses...",
+      target: "80–150 words",
+      assets: []
+    }
+  ],
+  methods: [
+    {
+      id: 1,
+      title: "2.1 Materials Preparation, Reagents & Primary Experimental Protocol",
+      placeholder: "Document raw material provenance, pre-processing, equipment parameters, synthesis/fabrication procedures, and treatment allocations...",
+      target: "120–200 words",
+      assets: []
+    },
+    {
+      id: 2,
+      title: "2.2 Analytical Instrumentation, Sampling Plan, QA & Safety Governance",
+      placeholder: "Detail measurement instruments, replication strategy (n per group), randomization procedures, and safety/ethics protocols...",
+      target: "120–200 words",
+      assets: []
+    }
+  ],
+  results: [
+    {
+      id: 1,
+      title: "3.1 Empirical Results Synthesis & Statistical Analysis",
+      placeholder: "Present observed experimental metrics with descriptive statistics (Mean ± SD) and planned inferential tests (ANOVA, t-test, or non-parametric fallbacks)...",
+      target: "140–220 words",
+      assets: []
+    }
+  ],
+  discussion: [
+    {
+      id: 1,
+      title: "4.1 Mechanistic Interpretation & Underlying Causal Pathways",
+      placeholder: "Explain the underlying scientific mechanisms (e.g., molecular interactions, kinetics, energy balances) driving the observed outcomes...",
+      target: "100–180 words",
+      assets: []
+    },
+    {
+      id: 2,
+      title: "4.2 Theoretical Implications, Limitations & Practical Applications",
+      placeholder: "Discuss theoretical contributions, compare with literature benchmarks, articulate boundary conditions/limitations, and outline practical applications...",
+      target: "100–180 words",
+      assets: []
+    }
+  ],
+  references: [
+    {
+      id: 1,
+      title: "5.1 Conclusions & Future Strategic Research Directions",
+      placeholder: "Summarize major empirical conclusions and specify proposed next-phase investigations...",
+      target: "60–100 words",
+      assets: []
+    },
+    {
+      id: 2,
+      title: "5.2 References (APA 7th Edition with DOIs / Stable URLs)",
+      placeholder: "Provide complete APA 7th edition bibliographic entries with active DOIs...",
+      target: "4–8 formal citations",
+      assets: []
+    }
+  ],
+  transfer: [
+    {
+      id: 1,
+      title: "6.1 Autonomous CER Transfer Synthesis (Scaffold Withdrawn)",
+      placeholder: "Independently formulate a Claim–Evidence–Reasoning (CER) synthesis addressing a modified constraint or novel variable without AI guidance...",
+      target: "100–150 words",
+      assets: []
+    }
+  ]
+};
+
+/* ==========================================================================
+   2. FORMAL SRL TRACE ONTOLOGY & TELEMETRY STATE (WINNE & HADWIN COPES)
+   ========================================================================== */
+const SRL_OPERATIONS = {
+  TASK_DEF:   { code: "OP_TASK_DEFINITION", weight: 0.90, desc: "Reading prompts / guidelines" },
+  PLANNING:   { code: "OP_GOAL_PLANNING",    weight: 0.85, desc: "Forethought / target setting" },
+  ENACTING:   { code: "OP_CONTENT_ENACTING", weight: 0.95, desc: "Writing scientific prose" },
+  MONITORING: { code: "OP_META_MONITORING",  weight: 0.80, desc: "Checking tables / Reference Bank" },
+  EVALUATING: { code: "OP_SELF_EVALUATION",  weight: 0.90, desc: "Confidence rating / revision" },
+  HELP_SEEK:  { code: "OP_HELP_SEEKING",     weight: 0.85, desc: "Requesting AI / Teacher aid" },
+  OFFLOADING: { code: "OP_OFFLOAD_ATTEMPT",  weight: 1.00, desc: "Intercepted copy-paste" }
+};
+
+let telemetry = {
+  participant_id: "P_STEM_" + Math.floor(1000 + Math.random() * 9000),
+  session_id: "S_" + Date.now(),
+  current_condition: "C4",
+  total_clicks: 0,
+  total_pauses: 0,
+  max_pause_ms: 0,
+  current_pause_ms: 0,
+  total_keystrokes: 0,
+  total_backspaces: 0,
+  total_revisions: 0,
+  total_wpm: 0,
+  blocked_pastes: 0,
+  teacher_alerts: 0,
+  active_state: "flow",
+  fading_state: {
+    competency_score: 0,
+    scaffold_tier_allowed: 4
+  },
+  srl_trace_stream: [],
+  teacher_action_log: []
+};
+
+let currentSection = "setup";
+let unlockedSections = new Set(["setup"]);
+let completedSections = new Set();
+let sectionTimers = {
+  intro: 40 * 60,
+  methods: 40 * 60,
+  results: 40 * 60,
+  discussion: 40 * 60,
+  references: 40 * 60,
+  transfer: 30 * 60
+};
+
+let activeTimerInterval = null;
+let pauseWatchInterval = null;
+let lastKeystrokeTime = Date.now();
+let activeTargetSubForAsset = { sec: null, subId: null };
+let activeTargetSubForShaper = { sec: null, subId: null };
+let hasTriggeredStagnationAlert = false;
+let activeEditorContext = { sec: "intro", subId: 1 };
+let isPauseEpisodeActive = false;
+let pauseEpisodeStartTime = null;
+
+const CONDITION_META = {
+  C1: { label: "Restricted AI + Standard Teacher", ai: "restricted", teacher: "standard" },
+  C2: { label: "Restricted AI + Enhanced Teacher", ai: "restricted", teacher: "enhanced" },
+  C3: { label: "Adaptive AI + Standard Teacher",   ai: "adaptive",   teacher: "standard" },
+  C4: { label: "Adaptive AI + Enhanced Teacher (Full CRISP-AI Protocol)", ai: "adaptive", teacher: "enhanced" }
+};
+
+function isEnhancedTeacher() { return ["C2", "C4"].includes(telemetry.current_condition); }
+function isRestrictedAI()   { return ["C1", "C2"].includes(telemetry.current_condition); }
+
+/* ==========================================================================
+   3. INITIALIZATION & STATE MANAGEMENT
+   ========================================================================== */
+window.addEventListener("DOMContentLoaded", () => {
+  attachGlobalAntiPaste();
+  renderAllSubsections();
+  restoreStateFromLocalStorage();
+  attachGlobalTraceListeners();
+  applyConditionToUI();
+  startTelemetryWatchers();
+  updateTelemetryUI();
+});
+
+function logSrlTrace(srlOp, targetId, metadata = {}) {
+  const record = {
+    participant_id: telemetry.participant_id,
+    session_id: telemetry.session_id,
+    timestamp_utc: new Date().toISOString(),
+    section_id: currentSection,
+    srl_operation: srlOp.code,
+    srl_category: srlOp.desc,
+    diagnostic_weight: srlOp.weight,
+    event_target: targetId || "system",
+    latency_ms: Date.now() - lastKeystrokeTime,
+    wpm: telemetry.total_wpm || 0,
+    revisions: telemetry.total_revisions || 0,
+    state_inferred: telemetry.active_state,
+    condition: telemetry.current_condition,
+    metadata: metadata
+  };
+  telemetry.srl_trace_stream.push(record);
+  saveStateToLocalStorage();
+}
+
+function renderAllSubsections() {
+  const sections = ["intro", "methods", "results", "discussion", "references", "transfer"];
+  sections.forEach(sec => renderSectionSubs(sec));
+}
+
+function renderSectionSubs(sec) {
+  const container = document.getElementById(`subs-container-${sec}`);
+  if (!container) return;
+  container.innerHTML = "";
+
+  const subs = sectionSubs[sec] || [];
+  subs.forEach(sub => {
+    const card = document.createElement("div");
+    card.className = "subsection-block";
+    card.id = `sub-block-${sec}-${sub.id}`;
+
+    const isTransfer = (sec === "transfer");
+
+    card.innerHTML = `
+      <div class="subsection-header">
+        <span class="subsection-title">
+          <span id="title-text-${sec}-${sub.id}">${sub.title}</span>
+        </span>
+        <div class="sub-controls">
+          ${!isTransfer ? `
+            <button class="btn-asset" onclick="openTableModalFor('${sec}', ${sub.id})">📊 + Table</button>
+            <button class="btn-asset" onclick="openChartModalFor('${sec}', ${sub.id})">📈 + Graph</button>
+          ` : `<span style="font-size:11px;color:#b71c1c;font-weight:bold;">Autonomous Benchmark</span>`}
+          <button class="sub-icon-btn" onclick="renameSub('${sec}', ${sub.id})">✏️ Rename</button>
+        </div>
+      </div>
+
+      ${!isTransfer ? `
+      <div class="inline-ai-spotter" id="spotter-${sec}-${sub.id}">
+        <div class="spotter-header">
+          <div>
+            <span style="font-weight:bold;color:#0d47a1;">🧠 In-Situ AI Spotter:</span>
+            <span class="spotter-status-pill status-flow" id="spotter-pill-${sec}-${sub.id}">🟢 Flow State</span>
+          </div>
+          <span style="font-size:11px;color:#2e7d32;font-weight:bold;" id="spotter-timer-${sec}-${sub.id}">⏱️ Active Pause: 0s</span>
+        </div>
+        <div class="spotter-actions">
+          <button class="spotter-btn spotter-btn-l1" onclick="triggerInlineScaffold('${sec}', ${sub.id}, 1)">💡 1. Socratic Brainstorm</button>
+          <button class="spotter-btn spotter-btn-l2" onclick="triggerInlineScaffold('${sec}', ${sub.id}, 2)">🔄 2. Data Redirect</button>
+          <button class="spotter-btn spotter-btn-l3" onclick="triggerInlineScaffold('${sec}', ${sub.id}, 3)">📝 3. Sentence Frame</button>
+          <button class="spotter-btn spotter-btn-l4" onclick="triggerInlineScaffold('${sec}', ${sub.id}, 4)">⭐ 4. Autonomy Check</button>
+          <button class="spotter-btn spotter-btn-shape" onclick="openShaperFor('${sec}', ${sub.id})">✨ Writing Shaper</button>
+        </div>
+        <div class="spotter-response-area" id="spotter-res-${sec}-${sub.id}"></div>
+      </div>
+      ` : `
+      <div style="background:#fff3e0;border:1px solid #ffcc80;padding:8px 12px;border-radius:3px;margin-bottom:10px;font-size:12.5px;color:#e65100;">
+        🔒 <strong>Fading Protocol Enforcement:</strong> All scaffolding agents are withdrawn to evaluate independent reasoning.
+      </div>
+      `}
+
+      <textarea id="text-${sec}-${sub.id}" class="editor-textarea" placeholder="${sub.placeholder}" oninput="handleSubInput('${sec}', ${sub.id})"></textarea>
+
+      <div class="word-counter-row">
+        <span id="wc-${sec}-${sub.id}">Words: 0 | Target: ${sub.target}</span>
+        <div class="telemetry-micro-stats">
+          <span id="burst-${sec}-${sub.id}">WPM: 0</span>
+        </div>
+      </div>
+
+      <div class="sub-assets-area" id="assets-${sec}-${sub.id}"></div>
+    `;
+
+    container.appendChild(card);
+
+    const textarea = card.querySelector(`#text-${sec}-${sub.id}`);
+    attachAntiPaste(textarea);
+    attachTelemetryToEditor(textarea, sec, sub.id);
+
+    if (sub.assets && sub.assets.length > 0) {
+      renderSubAssets(sec, sub.id);
+    }
+  });
+
+  enforceFadingRulesInUI();
+}
+
+/* ==========================================================================
+   4. INLINE SCAFFOLDING & ADAPTIVE FADING ENGINE
+   ========================================================================== */
+function triggerInlineScaffold(sec, subId, level) {
+  const resArea = document.getElementById(`spotter-res-${sec}-${subId}`);
+  if (!resArea) return;
+
+  if (level > 1 && isRestrictedAI()) {
+    logSrlTrace(SRL_OPERATIONS.HELP_SEEK, `sub_${sec}_${subId}`, { action: "blocked_by_condition_C1_C2", level });
+    resArea.style.display = "block";
+    resArea.innerHTML = `🔒 <strong>Condition ${telemetry.current_condition} (Restricted AI):</strong> Advanced tiers locked. Work from Tier 1 Socratic prompts.`;
+    return;
+  }
+
+  if (level > telemetry.fading_state.scaffold_tier_allowed) {
+    logSrlTrace(SRL_OPERATIONS.HELP_SEEK, `sub_${sec}_${subId}`, { action: "faded_by_competency", level });
+    resArea.style.display = "block";
+    resArea.innerHTML = `📉 <strong>Scaffold Faded:</strong> Based on your demonstrated progress, Tier ${level} is faded. Rely on independent reasoning.`;
+    return;
+  }
+
+  telemetry.total_clicks++;
+  logSrlTrace(SRL_OPERATIONS.HELP_SEEK, `sub_${sec}_${subId}`, { action: "scaffold_requested", level });
+
+  const currentText = (document.getElementById(`text-${sec}-${subId}`)?.value || "").trim();
+  const wc = currentText ? currentText.split(/\s+/).filter(Boolean).length : 0;
+
+  let msg = "";
+  if (level === 1) {
+    msg = `💡 <strong>Socratic Brainstorming:</strong> What is the core scientific relationship between your independent and dependent variables? What physical/chemical/biological mechanism links them?`;
+  } else if (level === 2) {
+    msg = `🔄 <strong>Data &amp; Protocol Redirect:</strong> Verify that your argument explicitly anchors replication count ($n$), control groups, and empirical units before advancing to conclusions.`;
+  } else if (level === 3) {
+    msg = `📝 <strong>Sentence Frames:</strong> <em>"Experimental evaluation indicated that [Variable X] significantly altered [Variable Y]..."</em> and <em>"This empirical pattern is mechanistically explained by..."</em>`;
+  } else {
+    msg = `⭐ <strong>Autonomy Calibration:</strong> Current volume: ${wc} words. Verify that your narrative maintains formal APA 7th style, objective passive/third-person voice, and complete variable isolation.`;
+  }
+
+  resArea.innerHTML = msg;
+  resArea.style.display = "block";
+}
+
+function assessAndFadeScaffolding(sec) {
+  const subs = sectionSubs[sec] || [];
+  let totalWords = 0;
+  let hasUsedKB = telemetry.srl_trace_stream.some(t => t.section_id === sec && t.srl_operation === "OP_META_MONITORING");
+
+  subs.forEach(s => {
+    const val = (document.getElementById(`text-${sec}-${s.id}`)?.value || "").trim();
+    totalWords += val ? val.split(/\s+/).filter(Boolean).length : 0;
+  });
+
+  let comp = Math.min(100, Math.round((totalWords / 250) * 55 + (hasUsedKB ? 25 : 10) + (telemetry.total_revisions > 12 ? 20 : 5)));
+  telemetry.fading_state.competency_score = comp;
+
+  const compDisplay = document.getElementById("telemetryCompetencyScore");
+  if (compDisplay) compDisplay.innerText = `${comp}/100`;
+
+  if (comp >= 80) {
+    telemetry.fading_state.scaffold_tier_allowed = 2;
+    document.getElementById("fadingStatusBadge").innerText = "📉 Fading: Tier 1–2 Only";
+  } else if (comp >= 50) {
+    telemetry.fading_state.scaffold_tier_allowed = 3;
+    document.getElementById("fadingStatusBadge").innerText = "📉 Fading: Tier 1–3 Active";
+  } else {
+    telemetry.fading_state.scaffold_tier_allowed = 4;
+    document.getElementById("fadingStatusBadge").innerText = "📉 Fading: Tier 4 Active";
+  }
+
+  enforceFadingRulesInUI();
+}
+
+function enforceFadingRulesInUI() {
+  const allowed = telemetry.fading_state.scaffold_tier_allowed;
+  const restricted = isRestrictedAI();
+
+  document.querySelectorAll(".spotter-btn-l2").forEach(btn => btn.classList.toggle("gated", restricted));
+  document.querySelectorAll(".spotter-btn-l3").forEach(btn => btn.classList.toggle("gated", restricted || allowed < 3));
+  document.querySelectorAll(".spotter-btn-l4").forEach(btn => btn.classList.toggle("gated", restricted || allowed < 4));
+  document.querySelectorAll(".spotter-btn-shape").forEach(btn => btn.classList.toggle("gated", restricted));
+}
+
+/* ==========================================================================
+   5. WRITING SHAPER (CONSTRAINED REASONING ENGINE)
+   ========================================================================== */
+function openShaperFor(sec, subId) {
+  if (isRestrictedAI()) {
+    alert("🔒 Gradual Writing Shaper is locked under Condition " + telemetry.current_condition + " (Restricted AI).");
+    return;
+  }
+  activeTargetSubForShaper = { sec, subId };
+  telemetry.total_clicks++;
+  const textEl = document.getElementById(`text-${sec}-${subId}`);
+  const currentText = (textEl?.value || "").trim();
+  const subObj = sectionSubs[sec]?.find(s => s.id === subId);
+  const title = subObj?.title || `${sec.toUpperCase()} Subsection ${subId}`;
+
+  document.getElementById("shaperContextInfo").innerHTML = `Analyzing draft for: <strong>${title}</strong>`;
+  document.getElementById("shaperCurrentText").value = currentText || "[No text written yet]";
+  document.getElementById("shaperAiFeedback").innerHTML = currentText
+    ? `Draft loaded (${currentText.split(/\s+/).filter(Boolean).length} words). Select a refinement dimension below.`
+    : `<span style="color:#b71c1c;">Please draft initial prose in the subsection editor first.</span>`;
+
+  document.getElementById("shaperModal").classList.add("show");
+  logSrlTrace(SRL_OPERATIONS.MONITORING, `sub_${sec}_${subId}`, { action: "shaper_opened" });
+}
+
+function closeShaperModal() { document.getElementById("shaperModal").classList.remove("show"); }
+
+function runShaperStep(step) {
+  telemetry.total_clicks++;
+  const feedbackBox = document.getElementById("shaperAiFeedback");
+  if (step === 1) {
+    feedbackBox.innerHTML = "<strong>CER Structural Verification:</strong> Ensure a clear empirical Claim is articulated first, followed by quantitative Evidence and a causal scientific Reasoning mechanism.";
+  } else if (step === 2) {
+    feedbackBox.innerHTML = "<strong>Variable &amp; Data Integration:</strong> Verify that independent and dependent variables are isolated with appropriate physical units, precision bounds, and replication counts ($n$).";
+  } else {
+    feedbackBox.innerHTML = "<strong>Academic Register Polish:</strong> Confirm third-person objective phrasing, formal past-tense reporting for methods/results, and precise technical nomenclature.";
+  }
+  logSrlTrace(SRL_OPERATIONS.EVALUATING, `shaper_step_${step}`, { step });
+}
+
+/* ==========================================================================
+   6. MULTI-FEATURE COGNITIVE DETECTOR (SOLVING LATENCY INFERENCE GAP)
+   ========================================================================== */
+function attachGlobalTraceListeners() {
+  document.addEventListener("click", () => {
+    telemetry.total_clicks++;
+    updateTelemetryUI();
+  });
+}
+
+function attachTelemetryToEditor(textarea, sec, subId) {
+  let burstKeys = 0;
+  let burstStart = Date.now();
+
+  textarea.addEventListener("focus", () => {
+    if (activeEditorContext.sec !== sec || activeEditorContext.subId !== subId) {
+      activeEditorContext = { sec, subId };
+      lastKeystrokeTime = Date.now();
+      telemetry.current_pause_ms = 0;
+      hasTriggeredStagnationAlert = false;
+      logSrlTrace(SRL_OPERATIONS.TASK_DEF, `${sec}_${subId}`, { action: "focus_editor" });
+    }
+  });
+
+  textarea.addEventListener("keydown", (e) => {
+    telemetry.total_keystrokes++;
+    activeEditorContext = { sec, subId };
+
+    if (isPauseEpisodeActive) {
+      const pauseDuration = Date.now() - (pauseEpisodeStartTime || lastKeystrokeTime);
+      logSrlTrace(SRL_OPERATIONS.ENACTING, `${sec}_${subId}`, { action: "pause_ended", pauseDuration });
+      isPauseEpisodeActive = false;
+    }
+
+    lastKeystrokeTime = Date.now();
+    hasTriggeredStagnationAlert = false;
+    burstKeys++;
+
+    if (e.key === "Backspace" || e.key === "Delete") {
+      telemetry.total_backspaces++;
+      telemetry.total_revisions++;
+      logSrlTrace(SRL_OPERATIONS.EVALUATING, `${sec}_${subId}`, { action: "character_deletion" });
+    }
+
+    telemetry.current_pause_ms = 0;
+    evaluateTriangulatedCognitiveState(sec, subId);
+  });
+
+  textarea.addEventListener("keyup", () => {
+    const elapsedSec = (Date.now() - burstStart) / 1000;
+    if (elapsedSec > 2) {
+      const wpm = Math.round((burstKeys / 5) / (elapsedSec / 60));
+      const wpmSpan = document.getElementById(`burst-${sec}-${subId}`);
+      if (wpmSpan) wpmSpan.innerText = `WPM: ${wpm}`;
+      telemetry.total_wpm = wpm;
+      burstKeys = 0;
+      burstStart = Date.now();
+    }
+  });
+}
+
+function startTelemetryWatchers() {
+  pauseWatchInterval = setInterval(() => {
+    const idleMs = Date.now() - lastKeystrokeTime;
+    telemetry.current_pause_ms = idleMs;
+
+    if (idleMs > telemetry.max_pause_ms) {
+      telemetry.max_pause_ms = idleMs;
+    }
+
+    const idleSec = Math.floor(idleMs / 1000);
+    const pauseDisplay = document.getElementById("telemetryCurrentPause");
+    if (pauseDisplay) pauseDisplay.innerText = `${idleSec}s`;
+
+    if (idleSec >= 5 && !isPauseEpisodeActive) {
+      isPauseEpisodeActive = true;
+      pauseEpisodeStartTime = Date.now() - idleMs;
+      telemetry.total_pauses++;
+      logSrlTrace(SRL_OPERATIONS.PLANNING, `${activeEditorContext.sec}_${activeEditorContext.subId}`, { action: "pause_initiated", threshold: 5 });
+    }
+
+    evaluateTriangulatedCognitiveState(activeEditorContext.sec, activeEditorContext.subId);
+    updateTelemetryUI();
+  }, 1000);
+}
+
+function evaluateTriangulatedCognitiveState(sec, subId) {
+  const idleMs = Date.now() - lastKeystrokeTime;
+  const idleSec = Math.floor(idleMs / 1000);
+  const textEl = document.getElementById(`text-${sec}-${subId}`);
+  const currentText = (textEl?.value || "").trim();
+  const wc = currentText ? currentText.split(/\s+/).filter(Boolean).length : 0;
+  
+  const revRatio = telemetry.total_keystrokes > 0 ? (telemetry.total_backspaces / telemetry.total_keystrokes) : 0;
+
+  let state = "flow";
+  let desc = "Active formulation & typing";
+
+  if (idleSec < 6) {
+    state = "flow";
+    desc = "Active formulation & typing";
+  } else if (idleSec >= 6 && idleSec < 20) {
+    if (revRatio > 0.25) {
+      state = "evaluating";
+      desc = "Active revision & self-evaluation";
+    } else {
+      state = "reflection";
+      desc = `Reflective conceptual planning (${idleSec}s)`;
+    }
+  } else if (idleSec >= 20 && idleSec < 60) {
+    if (wc < 20) {
+      state = "hesitation";
+      desc = `Task initiation hesitation (${idleSec}s)`;
+    } else {
+      state = "deliberation";
+      desc = `Synthesis & structure deliberation (${idleSec}s)`;
+    }
+  } else if (idleSec >= 60 && idleSec < 90) {
+    state = "struggle";
+    desc = `Productive struggle (${idleSec}s) — Socratic Nudge Armed`;
+  } else {
+    state = "stagnation";
+    desc = `🚨 Persistent Inactivity (${idleSec}s) — Teacher Alert Buffered`;
+    if (!hasTriggeredStagnationAlert) {
+      triggerBufferedTeacherTriage(sec, subId, idleSec);
+      hasTriggeredStagnationAlert = true;
+    }
+  }
+
+  setLearnerState(state, desc);
+
+  const timerEl = document.getElementById(`spotter-timer-${sec}-${subId}`);
+  if (timerEl) {
+    timerEl.innerText = `⏱️ Active Pause: ${idleSec}s`;
+    timerEl.style.color = idleSec < 6 ? "#2e7d32" : idleSec < 20 ? "#f57f17" : idleSec < 60 ? "#e65100" : "#b71c1c";
+  }
+  updateStatePill(sec, subId, state, desc);
+}
+
+function setLearnerState(state, desc) {
+  telemetry.active_state = state;
+  const descEl = document.getElementById("telemetryStateDesc");
+  if (descEl) descEl.innerText = desc;
+
+  const badge = document.getElementById("sidebarSrlBadge");
+  if (badge) {
+    badge.className = `srl-state-badge status-${state}`;
+    badge.innerText = state.toUpperCase();
+  }
+}
+
+function updateStatePill(sec, subId, state, text) {
+  const pill = document.getElementById(`spotter-pill-${sec}-${subId}`);
+  if (pill) {
+    pill.className = `spotter-status-pill status-${state}`;
+    pill.innerText = text;
+  }
+}
+
+/* ==========================================================================
+   7. TWO-TIERED TEACHER TRIAGE & ACTIONS
+   ========================================================================== */
+function triggerBufferedTeacherTriage(sec, subId, idleSec) {
+  if (!isEnhancedTeacher()) return;
+
+  telemetry.teacher_alerts++;
+  const alertData = {
+    section: sec,
+    subsection: subId,
+    pause_seconds: idleSec,
+    wpm: telemetry.total_wpm,
+    words: document.getElementById(`text-${sec}-${subId}`)?.value.split(/\s+/).filter(Boolean).length || 0,
+    timestamp: new Date().toLocaleTimeString()
+  };
+
+  logSrlTrace(SRL_OPERATIONS.HELP_SEEK, "teacher_buffered_alert", alertData);
+
+  const logBox = document.getElementById("teacherActionLogHistory");
+  if (logBox) {
+    logBox.innerHTML = `
+      <div style="background:#fff3e0;border-left:3px solid #e65100;padding:6px;margin-bottom:4px;">
+        ⚠️ [${alertData.timestamp}] <strong>Priority Alert:</strong> Inactive for ${idleSec}s in ${sec.toUpperCase()}.${subId} (${alertData.words} words written).
+      </div>
+    ` + logBox.innerHTML;
+  }
+}
+
+function triggerStudentHelpRequest() {
+  telemetry.total_clicks++;
+  if (isEnhancedTeacher()) {
+    telemetry.teacher_alerts++;
+    logSrlTrace(SRL_OPERATIONS.HELP_SEEK, currentSection, { help_type: "student_direct_request" });
+    alert("🙋 Your help request has been signaled on the Teacher Orchestration Dashboard.");
+  } else {
+    logSrlTrace(SRL_OPERATIONS.HELP_SEEK, currentSection, { help_type: "unmonitored_request" });
+    alert("🙋 Help request logged to research trace.");
+  }
+  updateTelemetryUI();
+}
+
+function openTeacherDashboard() {
+  telemetry.total_clicks++;
+  if (!isEnhancedTeacher()) {
+    alert("🔒 Teacher Dashboard is active only for Enhanced Teacher conditions (C2 / C4).");
+    return;
+  }
+  const meta = CONDITION_META[telemetry.current_condition] || CONDITION_META.C4;
+  document.getElementById("tdConditionLabel").innerText = telemetry.current_condition + " — " + meta.label;
+
+  const struggleScore = Math.min(100, (telemetry.total_pauses * 4) + (telemetry.blocked_pastes * 15));
+  const struggleLabel = struggleScore > 60 ? "High" : struggleScore > 30 ? "Moderate" : "Low";
+  document.getElementById("tdStruggleScore").innerText = `${struggleLabel} (${struggleScore}%)`;
+
+  document.getElementById("tdStudentStatus").innerText = telemetry.active_state.toUpperCase();
+  document.getElementById("tdTotalPauses").innerText = telemetry.total_pauses;
+  document.getElementById("tdAlertCount").innerText = telemetry.teacher_alerts;
+  document.getElementById("teacherDashboardModal").classList.add("show");
+  logSrlTrace(SRL_OPERATIONS.MONITORING, "teacher_dashboard", { action: "opened" });
+}
+
+function closeTeacherDashboard() { document.getElementById("teacherDashboardModal").classList.remove("show"); }
+
+function logTeacherAction(actionType) {
+  telemetry.total_clicks++;
+  const timestamp = new Date().toLocaleTimeString();
+  telemetry.teacher_action_log.push({ action: actionType, time: timestamp });
+
+  if (actionType === "T_EXTEND_TIME") {
+    if (sectionTimers[currentSection]) sectionTimers[currentSection] += 600;
+    alert("⏱️ 10 Minutes added to current section budget.");
+  }
+
+  const logBox = document.getElementById("teacherActionLogHistory");
+  if (logBox) {
+    logBox.innerHTML = `<div>[${timestamp}] <strong>${actionType}</strong> logged</div>` + logBox.innerHTML;
+  }
+
+  logSrlTrace(SRL_OPERATIONS.HELP_SEEK, currentSection, { teacher_action: actionType });
+  saveStateToLocalStorage();
+}
+
+/* ==========================================================================
+   8. ZERO-PASTE ANTI-OFFLOADING INTERCEPTOR
+   ========================================================================== */
+function attachGlobalAntiPaste() {
+  document.querySelectorAll("textarea, input, select").forEach(el => attachAntiPaste(el));
+}
+
+function attachAntiPaste(el) {
+  if (!el) return;
+  el.addEventListener("paste", blockPaste);
+  el.addEventListener("drop", blockPaste);
+  el.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === "v" || e.key === "V")) {
+      e.preventDefault(); e.stopPropagation(); handleBlocked(e.target);
+    } else if (e.shiftKey && e.key === "Insert") {
+      e.preventDefault(); e.stopPropagation(); handleBlocked(e.target);
+    }
+  });
+}
+
+function blockPaste(e) {
+  e.preventDefault(); e.stopPropagation();
+  handleBlocked(e.target);
+}
+
+function handleBlocked(el) {
+  telemetry.blocked_pastes++;
+  logSrlTrace(SRL_OPERATIONS.OFFLOADING, el.id || "textarea", { action: "paste_intercepted" });
+
+  if (el.classList) {
+    el.classList.add("paste-blocked");
+    setTimeout(() => el.classList.remove("paste-blocked"), 1000);
+  }
+
+  const toast = document.getElementById("antiPasteToast");
+  if (toast) {
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 4000);
+  }
+
+  const display = document.getElementById("blockedPasteDisplay");
+  if (display) display.innerText = telemetry.blocked_pastes;
+
+  setLearnerState("offloading", "⚠️ External Paste Intercepted");
+}
+
+/* ==========================================================================
+   9. NAVIGATION & SECTION TIMERS
+   ========================================================================== */
+function switchSection(sec) {
+  if (!unlockedSections.has(sec)) {
+    alert("🔒 This section is locked! Complete preceding stages first.");
+    return;
+  }
+
+  currentSection = sec;
+  telemetry.total_clicks++;
+  logSrlTrace(SRL_OPERATIONS.TASK_DEF, sec, { action: "section_switch" });
+
+  if (sectionSubs[sec] && sectionSubs[sec].length > 0) {
+    activeEditorContext = { sec, subId: sectionSubs[sec][0].id };
+    lastKeystrokeTime = Date.now();
+    telemetry.current_pause_ms = 0;
+  }
+
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+  const targetTab = document.getElementById(`tab-${sec}`);
+  if (targetTab) targetTab.classList.add("active");
+
+  document.querySelectorAll(".imrad-section").forEach(s => s.classList.remove("active"));
+  const targetSec = document.getElementById(`sec-${sec}`);
+  if (targetSec) targetSec.classList.add("active");
+
+  startSectionTimer(sec);
+  assessAndFadeScaffolding(sec);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function completeAndUnlockSection(currentSec, nextSec) {
+  telemetry.total_clicks++;
+  completedSections.add(currentSec);
+  unlockedSections.add(nextSec);
+
+  const currentTab = document.getElementById(`tab-${currentSec}`);
+  if (currentTab) currentTab.classList.add("completed");
+
+  const nextTab = document.getElementById(`tab-${nextSec}`);
+  if (nextTab) nextTab.classList.remove("locked");
+
+  logSrlTrace(SRL_OPERATIONS.EVALUATING, currentSec, { action: "stage_completed", nextSec });
+  saveStateToLocalStorage();
+  switchSection(nextSec);
+}
+
+function startSectionTimer(sec) {
+  if (activeTimerInterval) clearInterval(activeTimerInterval);
+  if (sec === "setup") {
+    document.getElementById("sectionTimerDisplay").innerText = "⏱️ Setup";
+    return;
+  }
+
+  activeTimerInterval = setInterval(() => {
+    if (sectionTimers[sec] > 0) {
+      sectionTimers[sec]--;
+      updateTimerDisplay(sectionTimers[sec]);
+    } else {
+      clearInterval(activeTimerInterval);
+      alert(`⏱️ Session budget reached for Stage: ${sec.toUpperCase()}. Review your draft and proceed.`);
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  const timerBadge = document.getElementById("sectionTimerDisplay");
+  if (!timerBadge) return;
+  timerBadge.innerText = `⏱️ ${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  timerBadge.className = seconds < 300 ? "timer-badge danger" : seconds < 600 ? "timer-badge warning" : "timer-badge";
+}
+
+function handleSubInput(sec, subId) {
+  const textEl = document.getElementById(`text-${sec}-${subId}`);
+  const text = (textEl?.value || "").trim();
+  const wc = text ? text.split(/\s+/).filter(Boolean).length : 0;
+
+  const wcEl = document.getElementById(`wc-${sec}-${subId}`);
+  const subObj = sectionSubs[sec]?.find(s => s.id === subId);
+  if (wcEl) wcEl.innerText = `Words: ${wc} | Target: ${subObj?.target || "N/A"}`;
+
+  updateWordCounts();
+  assessAndFadeScaffolding(sec);
+  saveStateToLocalStorage();
+}
+
+function updateWordCounts() {
+  let totalWc = 0;
+  const sections = ["intro", "methods", "results", "discussion", "references", "transfer"];
+
+  sections.forEach(sec => {
+    let secWc = 0;
+    (sectionSubs[sec] || []).forEach(s => {
+      const el = document.getElementById(`text-${sec}-${s.id}`);
+      if (el) {
+        secWc += el.value.trim().split(/\s+/).filter(Boolean).length;
+      }
+    });
+    totalWc += secWc;
+    const secWcDisplay = document.getElementById(`wc-${sec}`);
+    if (secWcDisplay) secWcDisplay.innerText = secWc;
+  });
+
+  const totalDisplay = document.getElementById("totalWordCountDisplay");
+  if (totalDisplay) totalDisplay.innerText = `${totalWc} words`;
+}
+
+function updateTelemetryUI() {
+  const elClicks = document.getElementById("telemetryClicks");
+  if (elClicks) elClicks.innerText = telemetry.total_clicks;
+  const elPauses = document.getElementById("telemetryPauses");
+  if (elPauses) elPauses.innerText = telemetry.total_pauses;
+  const elRevs = document.getElementById("telemetryRevisions");
+  if (elRevs) elRevs.innerText = telemetry.total_revisions;
+  const elMax = document.getElementById("telemetryMaxPause");
+  if (elMax) elMax.innerText = `${Math.round(telemetry.max_pause_ms / 1000)}s`;
+  const elWpm = document.getElementById("telemetryWpm");
+  if (elWpm) elWpm.innerText = telemetry.total_wpm;
+  updateWordCounts();
+}
+
+/* ==========================================================================
+   10. ASSET GENERATOR (TABLES & SVG CHARTS)
+   ========================================================================== */
+function openTableModalFor(sec, subId) {
+  activeTargetSubForAsset = { sec, subId };
+  telemetry.total_clicks++;
+  document.getElementById("tableModal").classList.add("show");
+}
+function closeTableModal() { document.getElementById("tableModal").classList.remove("show"); }
+
+function confirmInsertTable() {
+  const caption = document.getElementById("tblCaption").value.trim() || "Table 1: Experimental Data";
+  const headers = document.getElementById("tblHeaders").value.split(",").map(h => h.trim());
+  const rowsRaw = document.getElementById("tblRows").value.trim().split("\n");
+  const rows = rowsRaw.map(r => r.split(",").map(c => c.trim()));
+
+  const sub = sectionSubs[activeTargetSubForAsset.sec]?.find(s => s.id === activeTargetSubForAsset.subId);
+  if (sub) {
+    sub.assets.push({ type: "table", caption, headers, rows });
+    renderSubAssets(activeTargetSubForAsset.sec, activeTargetSubForAsset.subId);
+    saveStateToLocalStorage();
+  }
+  closeTableModal();
+}
+
+function openChartModalFor(sec, subId) {
+  activeTargetSubForAsset = { sec, subId };
+  telemetry.total_clicks++;
+  document.getElementById("chartModal").classList.add("show");
+}
+function closeChartModal() { document.getElementById("chartModal").classList.remove("show"); }
+
+function confirmInsertChart() {
+  const caption = document.getElementById("chartCaption").value.trim() || "Figure 1: Empirical Trends";
+  const xLabels = document.getElementById("chartXLabels").value.split(",").map(x => x.trim());
+  const yValues = document.getElementById("chartYValues").value.split(",").map(y => parseFloat(y.trim()) || 0);
+
+  const sub = sectionSubs[activeTargetSubForAsset.sec]?.find(s => s.id === activeTargetSubForAsset.subId);
+  if (sub) {
+    sub.assets.push({ type: "chart", caption, xLabels, yValues });
+    renderSubAssets(activeTargetSubForAsset.sec, activeTargetSubForAsset.subId);
+    saveStateToLocalStorage();
+  }
+  closeChartModal();
+}
+
+function renderSubAssets(sec, subId) {
+  const container = document.getElementById(`assets-${sec}-${subId}`);
+  if (!container) return;
+  container.innerHTML = "";
+
+  const sub = sectionSubs[sec]?.find(s => s.id === subId);
+  if (!sub || !sub.assets) return;
+
+  sub.assets.forEach((asset, idx) => {
+    const card = document.createElement("div");
+    card.className = "asset-card";
+
+    if (asset.type === "table") {
+      let thHtml = asset.headers.map(h => `<th>${h}</th>`).join("");
+      let trHtml = asset.rows.map(row => `<tr>${row.map(c => `<td>${c}</td>`).join("")}</tr>`).join("");
+      card.innerHTML = `
+        <div class="asset-card-header">
+          <span>📊 ${asset.caption}</span>
+          <button class="sub-icon-btn" onclick="removeAsset('${sec}', ${subId}, ${idx})">🗑️ Remove</button>
+        </div>
+        <div class="springer-table-container">
+          <table class="springer-table">
+            <thead><tr>${thHtml}</tr></thead>
+            <tbody>${trHtml}</tbody>
+          </table>
+        </div>
+      `;
+    } else if (asset.type === "chart") {
+      const maxVal = Math.max(...asset.yValues, 1);
+      let bars = asset.yValues.map((val, i) => {
+        const heightPct = Math.round((val / maxVal) * 110);
+        return `
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <span style="font-size:11px;font-weight:bold;">${val}</span>
+            <div style="width:36px;height:${heightPct}px;background:var(--teal-accent);border-radius:2px;"></div>
+            <span style="font-size:10px;text-align:center;max-width:55px;">${asset.xLabels[i] || ""}</span>
+          </div>
+        `;
+      }).join("");
+
+      card.innerHTML = `
+        <div class="asset-card-header">
+          <span>📈 ${asset.caption}</span>
+          <button class="sub-icon-btn" onclick="removeAsset('${sec}', ${subId}, ${idx})">🗑️ Remove</button>
+        </div>
+        <div style="display:flex;justify-content:space-around;align-items:flex-end;height:160px;padding:10px;background:#fbf9f5;border:1px solid #e0d8cb;border-radius:4px;">
+          ${bars}
+        </div>
+      `;
+    }
+    container.appendChild(card);
+  });
+}
+
+function removeAsset(sec, subId, idx) {
+  const sub = sectionSubs[sec]?.find(s => s.id === subId);
+  if (sub && sub.assets) {
+    sub.assets.splice(idx, 1);
+    renderSubAssets(sec, subId);
+    saveStateToLocalStorage();
+  }
+}
+
+/* ==========================================================================
+   11. CUSTOM SUBSECTIONS MODAL
+   ========================================================================== */
+let activeAddSec = "intro";
+function openAddSubModal(sec) {
+  activeAddSec = sec;
+  telemetry.total_clicks++;
+  document.getElementById("addSubModal").classList.add("show");
+}
+function closeAddSubModal() { document.getElementById("addSubModal").classList.remove("show"); }
+
+function confirmAddSub() {
+  const title = document.getElementById("newSubTitle").value.trim();
+  const target = document.getElementById("newSubTarget").value.trim() || "100–150 words";
+  const prompt = document.getElementById("newSubPrompt").value.trim();
+
+  if (!title) { alert("Please enter subsection title."); return; }
+
+  const existing = sectionSubs[activeAddSec] || [];
+  const newId = existing.length ? Math.max(...existing.map(s => s.id)) + 1 : 1;
+
+  existing.push({
+    id: newId,
+    title,
+    placeholder: prompt || "Enter scientific prose here...",
+    target,
+    assets: []
+  });
+
+  closeAddSubModal();
+  renderSectionSubs(activeAddSec);
+  saveStateToLocalStorage();
+}
+
+function renameSub(sec, subId) {
+  const sub = sectionSubs[sec]?.find(s => s.id === subId);
+  if (!sub) return;
+  const newTitle = prompt("Enter new title:", sub.title);
+  if (newTitle && newTitle.trim()) {
+    sub.title = newTitle.trim();
+    renderSectionSubs(sec);
+    saveStateToLocalStorage();
+  }
+}
+
+/* ==========================================================================
+   12. OBJECTIVE RUBRIC CALIBRATION & BIAS CALCULATION
+   ========================================================================== */
+function calculateObjectiveCalibrationBias() {
+  const perceived = parseFloat(document.getElementById("postPerceivedScore")?.value || "0");
+  let score = 0;
+
+  let totalWc = 0;
+  ["intro", "methods", "results", "discussion", "references", "transfer"].forEach(s => {
+    (sectionSubs[s] || []).forEach(sub => {
+      const txt = (document.getElementById(`text-${s}-${sub.id}`)?.value || "").trim();
+      totalWc += txt ? txt.split(/\s+/).filter(Boolean).length : 0;
+    });
+  });
+  score += Math.min(25, (totalWc / 900) * 25);
+
+  const fullText = Object.keys(sectionSubs).flatMap(s => 
+    (sectionSubs[s] || []).map(sub => document.getElementById(`text-${s}-${sub.id}`)?.value || "")
+  ).join(" ");
+
+  if (/hypothesis|independent variable|dependent variable|control/i.test(fullText)) score += 15;
+  if (/mean|SD|p\s*<|ANOVA|t-test|variance|significant/i.test(fullText)) score += 15;
+  if (/mechanism|kinetic|molecular|interaction|pathway/i.test(fullText)) score += 15;
+
+  if (telemetry.total_revisions > 15) score += 10;
+  if (telemetry.srl_trace_stream.some(t => t.srl_operation === "OP_META_MONITORING")) score += 10;
+
+  const refText = document.getElementById("text-references-2")?.value || "";
+  if (/doi\.org|https?:\/\/|10\.\d{4}/i.test(refText)) score += 10;
+
+  const objective = Math.round(Math.min(100, score));
+  const bias = (perceived - objective).toFixed(1);
+
+  return {
+    perceived,
+    objective,
+    bias,
+    interpretation: bias > 10 ? "Overconfident (Illusion of Competence)" : bias < -10 ? "Underconfident (Underestimating Mastery)" : "Accurately Calibrated"
+  };
+}
+
+/* ==========================================================================
+   13. EXPORTS & DIAGNOSTIC REPORT GENERATION
+   ========================================================================== */
+function exportTraceDataset() {
+  telemetry.total_clicks++;
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(telemetry, null, 2));
+  const a = document.createElement("a");
+  a.setAttribute("href", dataStr);
+  a.setAttribute("download", `ResearchTrace_${telemetry.participant_id}_${Date.now()}.json`);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function exportTraceCSV() {
+  telemetry.total_clicks++;
+  const cols = ["participant_id","session_id","timestamp_utc","section_id","srl_operation","srl_category","diagnostic_weight","event_target","latency_ms","wpm","revisions","state_inferred","condition"];
+  const lines = [cols.join(",")];
+  telemetry.srl_trace_stream.forEach(t => {
+    lines.push([
+      t.participant_id, t.session_id, t.timestamp_utc, t.section_id, t.srl_operation,
+      `"${t.srl_category}"`, t.diagnostic_weight, `"${t.event_target}"`, t.latency_ms,
+      t.wpm, t.revisions, t.state_inferred, t.condition
+    ].join(","));
+  });
+  const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `ResearchTrace_${telemetry.participant_id}_${Date.now()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function generateDiagnosticReport() {
+  telemetry.total_clicks++;
+  const cal = calculateObjectiveCalibrationBias();
+  const totalWc = document.getElementById("totalWordCountDisplay")?.innerText || "0 words";
+
+  let reportHtml = `
+    <div class="springer-print-header">
+      <div style="font-size:9pt;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#004d80;margin-bottom:4pt;">CRISP-AI PROTOCOL • SRL PROCESS &amp; TELEMETRY DIAGNOSTIC REPORT</div>
+      <div class="springer-print-title">Multimodal Learning Analytics &amp; Metacognitive Calibration Compendium</div>
+      <div class="springer-print-authors">Participant: ${telemetry.participant_id} | Session: ${telemetry.session_id} | Condition: ${telemetry.current_condition}</div>
+      <div class="springer-print-affil">Evaluated under Zimmerman (2000) Cyclical SRL &amp; Winne-Hadwin (1998) COPES Architecture</div>
+    </div>
+
+    <div class="springer-print-h2">1. EXECUTIVE SUMMARY &amp; TELEMETRY PROFILE</div>
+    <table class="springer-print-table">
+      <thead><tr><th>Metric Identifier</th><th>Observed Value</th><th>Theoretical Interpretation</th></tr></thead>
+      <tbody>
+        <tr><td>Total Proposal Volume</td><td>${totalWc}</td><td>Target: 800–1200 words across 6 IMRAD stages + Transfer</td></tr>
+        <tr><td>Interaction Count</td><td>${telemetry.total_clicks} clicks</td><td>Active cognitive tool utilization</td></tr>
+        <tr><td>Pause Episodes (&gt;5s)</td><td>${telemetry.total_pauses} events</td><td>Reflective planning &amp; synthesis pauses</td></tr>
+        <tr><td>Max Latency Duration</td><td>${Math.round(telemetry.max_pause_ms/1000)}s</td><td>Threshold check: Stagnation alerts buffered at 90s</td></tr>
+        <tr><td>Keystrokes / Revisions</td><td>${telemetry.total_keystrokes} / ${telemetry.total_revisions}</td><td>Iterative refinement &amp; text editing ratio</td></tr>
+        <tr><td>Zero-Paste Interceptions</td><td>${telemetry.blocked_pastes} blocked</td><td>100% Anti-Offloading integrity enforced</td></tr>
+        <tr><td>Competency Fading Index</td><td>${telemetry.fading_state.competency_score}/100</td><td>Adaptive scaffold fading status: Tier ${telemetry.fading_state.scaffold_tier_allowed}</td></tr>
+      </tbody>
+    </table>
+
+    <div class="springer-print-h2">2. CRITERION-REFERENCED METACOGNITIVE CALIBRATION</div>
+    <div class="springer-print-p">
+      <strong>Perceived Rigor Rating:</strong> ${cal.perceived}% | <strong>Objective Rubric Score:</strong> ${cal.objective}%<br>
+      <strong>Calibration Bias Metric:</strong> ${cal.bias} (${cal.interpretation})<br>
+      <em>Theoretical note: Assesses self-monitoring accuracy against objective evidence generation standards.</em>
+    </div>
+
+    <div class="springer-print-h2">3. SRL COPES PROCESS AUDIT STREAM (LATEST EXCERPT)</div>
+    <table class="springer-print-table" style="font-size:7.5pt;">
+      <thead><tr><th>Timestamp</th><th>Section</th><th>COPES Operation</th><th>Target</th><th>State Inferred</th></tr></thead>
+      <tbody>
+        ${telemetry.srl_trace_stream.slice(-10).map(t => `
+          <tr><td>${t.timestamp_utc}</td><td>${t.section_id}</td><td>${t.srl_operation}</td><td>${t.event_target}</td><td>${t.state_inferred}</td></tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+
+  const reportDiv = document.getElementById("printReportContainer");
+  reportDiv.innerHTML = reportHtml;
+  reportDiv.classList.add("print-active");
+  document.getElementById("printManuscriptContainer").classList.remove("print-active");
+  setTimeout(() => { window.print(); setTimeout(() => reportDiv.classList.remove("print-active"), 1000); }, 300);
+}
+
+function compileAndPrintPdf() {
+  telemetry.total_clicks++;
+  const projTitle = document.getElementById("displayProjectTitle").value.trim() || "STEM Research Proposal";
+  const studentNames = [1,2,3,4,5].map(i => document.getElementById(`metaStudent${i}`)?.value.trim()).filter(Boolean).join(", ") || "Research Co-Investigators";
+  const advisors = [document.getElementById("metaAdvisor1")?.value.trim(), document.getElementById("metaAdvisor2")?.value.trim()].filter(Boolean).join(" & ") || "Faculty Advisory Panel";
+  const school = document.getElementById("metaSchool")?.value.trim() || "Secondary STEM Education Program";
+  const discipline = document.getElementById("metaDiscipline")?.value || "STEM Research";
+
+  let bodyHtml = `
+    <div class="springer-print-header">
+      <div style="font-size:9pt;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#004d80;margin-bottom:4pt;">SPRINGER NATURE / APA 7 • SCIENTIFIC RESEARCH PROPOSAL (${discipline.toUpperCase()})</div>
+      <div class="springer-print-title">${projTitle}</div>
+      <div class="springer-print-authors">${studentNames}</div>
+      <div class="springer-print-affil">${school} | Advisors: ${advisors}</div>
+    </div>
+  `;
+
+  const sections = [
+    { key: "intro", title: "1.0 INTRODUCTION & RESEARCH QUESTIONS" },
+    { key: "methods", title: "2.0 MATERIALS & EXPERIMENTAL METHODS" },
+    { key: "results", title: "3.0 RESULTS & EMPIRICAL EVIDENCE SYNTHESIS" },
+    { key: "discussion", title: "4.0 DISCUSSION & CAUSAL MECHANISMS" },
+    { key: "references", title: "5.0 CONCLUSIONS & REFERENCES" },
+    { key: "transfer", title: "6.0 UNASSISTED TRANSFER TASK (FADED BENCHMARK)" }
+  ];
+
+  sections.forEach(sec => {
+    bodyHtml += `<div class="springer-print-h2">${sec.title}</div>`;
+    (sectionSubs[sec.key] || []).forEach(sub => {
+      const textVal = document.getElementById(`text-${sec.key}-${sub.id}`)?.value.trim() || "[Prose not completed]";
+      bodyHtml += `
+        <div class="springer-print-h3">${sub.title}</div>
+        <div class="springer-print-p">${textVal.replace(/\n\n/g, '</div><div class="springer-print-p">')}</div>
+      `;
+
+      (sub.assets || []).forEach(asset => {
+        if (asset.type === "table") {
+          let ths = asset.headers.map(h => `<th>${h}</th>`).join("");
+          let trs = asset.rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("");
+          bodyHtml += `
+            <div style="margin:8pt 0;">
+              <div class="springer-print-caption">${asset.caption}</div>
+              <table class="springer-print-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>
+            </div>
+          `;
+        } else if (asset.type === "chart") {
+          const maxVal = Math.max(...asset.yValues, 1);
+          let printBars = asset.yValues.map((val, i) => {
+            const hPct = Math.round((val / maxVal) * 70);
+            return `
+              <div style="display:inline-block;text-align:center;margin:0 10pt;vertical-align:bottom;">
+                <div style="font-size:8pt;font-weight:bold;">${val}</div>
+                <div style="width:26pt;height:${hPct}pt;background:#00897b;margin:0 auto;border:0.5pt solid #004d40;"></div>
+                <div style="font-size:7pt;margin-top:2pt;">${asset.xLabels[i] || ""}</div>
+              </div>
+            `;
+          }).join("");
+          bodyHtml += `
+            <div style="margin:10pt 0;text-align:center;">
+              <div class="springer-print-caption">${asset.caption}</div>
+              <div style="border:0.75pt solid #999;padding:8pt 5pt;display:inline-block;background:#fafafa;">${printBars}</div>
+            </div>
+          `;
+        }
+      });
+    });
+  });
+
+  const printDiv = document.getElementById("printManuscriptContainer");
+  printDiv.innerHTML = bodyHtml;
+  printDiv.classList.add("print-active");
+  document.getElementById("printReportContainer").classList.remove("print-active");
+  setTimeout(() => { window.print(); setTimeout(() => printDiv.classList.remove("print-active"), 1000); }, 300);
+}
+
+/* ==========================================================================
+   14. LOCAL STORAGE PERSISTENCE
+   ========================================================================= */
+function saveStateToLocalStorage() {
+  try {
+    const data = {
+      timestamp: Date.now(),
+      title: document.getElementById("displayProjectTitle")?.value || "",
+      discipline: document.getElementById("metaDiscipline")?.value || "",
+      school: document.getElementById("metaSchool")?.value || "",
+      students: [1,2,3,4,5].map(i => document.getElementById(`metaStudent${i}`)?.value || ""),
+      advisors: [1,2].map(i => document.getElementById(`metaAdvisor${i}`)?.value || ""),
+      prior: document.getElementById("baselinePriorKnowledge")?.value || "3",
+      efficacy: document.getElementById("baselineSelfEfficacy")?.value || "80",
+      sectionSubs,
+      unlockedSections: Array.from(unlockedSections),
+      completedSections: Array.from(completedSections),
+      sectionTimers,
+      telemetry
+    };
+
+    const texts = {};
+    ["intro", "methods", "results", "discussion", "references", "transfer"].forEach(sec => {
+      (sectionSubs[sec] || []).forEach(sub => {
+        texts[`${sec}_${sub.id}`] = document.getElementById(`text-${sec}-${sub.id}`)?.value || "";
+      });
+    });
+    data.texts = texts;
+
+    localStorage.setItem("universal_stem_imrad_engine_state", JSON.stringify(data));
+    const autoPill = document.getElementById("autosaveStatus");
+    if (autoPill) {
+      const d = new Date();
+      autoPill.innerText = `💾 Saved ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+    }
+  } catch (e) {
+    console.warn("Storage auto-save notice:", e);
+  }
+}
+
+function restoreStateFromLocalStorage() {
+  try {
+    const raw = localStorage.getItem("universal_stem_imrad_engine_state");
+    if (!raw) return;
+    const data = JSON.parse(raw);
+
+    if (data.title) document.getElementById("displayProjectTitle").value = data.title;
+    if (data.discipline) document.getElementById("metaDiscipline").value = data.discipline;
+    if (data.school) document.getElementById("metaSchool").value = data.school;
+
+    if (data.students) {
+      data.students.forEach((s, idx) => {
+        const el = document.getElementById(`metaStudent${idx+1}`);
+        if (el && s) el.value = s;
+      });
+    }
+    if (data.advisors) {
+      data.advisors.forEach((a, idx) => {
+        const el = document.getElementById(`metaAdvisor${idx+1}`);
+        if (el && a) el.value = a;
+      });
+    }
+    if (data.sectionSubs) {
+      sectionSubs = data.sectionSubs;
+      renderAllSubsections();
+    }
+    if (data.texts) {
+      Object.keys(data.texts).forEach(k => {
+        const [sec, subId] = k.split("_");
+        const el = document.getElementById(`text-${sec}-${subId}`);
+        if (el) el.value = data.texts[k];
+      });
+    }
+    if (data.unlockedSections) {
+      unlockedSections = new Set(data.unlockedSections);
+      unlockedSections.forEach(s => document.getElementById(`tab-${s}`)?.classList.remove("locked"));
+    }
+    if (data.completedSections) {
+      completedSections = new Set(data.completedSections);
+      completedSections.forEach(s => document.getElementById(`tab-${s}`)?.classList.add("completed"));
+    }
+    if (data.telemetry) {
+      telemetry = Object.assign(telemetry, data.telemetry);
+    }
+    updateTelemetryUI();
+  } catch (e) {
+    console.error("Restore state error:", e);
+  }
+}
+
+function openKnowledgeBank() {
+  telemetry.total_clicks++;
+  logSrlTrace(SRL_OPERATIONS.MONITORING, "knowledge_bank", { action: "opened" });
+  document.getElementById("knowledgeBankModal").classList.add("show");
+}
+function closeKnowledgeBank() { document.getElementById("knowledgeBankModal").classList.remove("show"); }
+function openConditionModal() { telemetry.total_clicks++; document.getElementById("conditionModal").classList.add("show"); }
+function closeConditionModal() { document.getElementById("conditionModal").classList.remove("show"); }
+
+function setExperimentCondition(cond) {
+  telemetry.current_condition = cond;
+  applyConditionToUI();
+  logSrlTrace(SRL_OPERATIONS.TASK_DEF, "condition_change", { condition: cond });
+  saveStateToLocalStorage();
+}
+
+function applyConditionToUI() {
+  const cond = telemetry.current_condition;
+  const meta = CONDITION_META[cond] || CONDITION_META.C4;
+  const badge = document.getElementById("activeConditionBadge");
+  if (badge) badge.innerText = "🔬 Cond. " + cond.slice(1) + ": " + meta.label.split(":")[0];
+  const radio = document.querySelector(`input[name="expCond"][value="${cond}"]`);
+  if (radio) radio.checked = true;
+
+  const btnPanel = document.getElementById("btnTeacherPanel");
+  const btnHelp = document.getElementById("btnHelpTeacher");
+  if (btnPanel) btnPanel.style.display = isEnhancedTeacher() ? "" : "none";
+  if (btnHelp) btnHelp.style.display = isEnhancedTeacher() ? "" : "none";
+
+  enforceFadingRulesInUI();
+}
+</script>
+</body>
+</html>
